@@ -16,7 +16,7 @@ export default function AdminSidebar() {
 
       {/* Navigation */}
       <nav className="space-y-2">
-        <NavLink to="/admin" end className={navItemClass}>
+        <NavLink to="/admin/bookings" end className={navItemClass}>
           Booking Management
         </NavLink>
 

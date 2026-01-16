@@ -10,7 +10,7 @@ import StaffForm from "../pages/staff/StaffForm"
 
 const router = createBrowserRouter([
   {
-    path: "/admin",
+    path: "/",
     Component: AdminLayout,
     children: [
       {

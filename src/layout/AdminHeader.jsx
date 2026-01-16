@@ -2,7 +2,7 @@
 import { useLocation, useNavigate } from "react-router";
 
 const HEADER_CONFIG = {
-  "/admin": {
+  "/admin/bookings": {
     title: "Booking Management",
     actionLabel: "+ New Booking",
     actionPath: "/admin/bookings/bookingform",
