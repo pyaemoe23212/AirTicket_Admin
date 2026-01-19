@@ -1,42 +1,26 @@
+import { useState } from "react";
 export default function FlightManagement() {
+   const [openCurrencyModal, setOpenCurrencyModal] = useState(false);
+  const [rate, setRate] = useState("1.12");
+
   return (
     <div className="w-full">
       {/* HEADER */}
-<div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h1 className="text-xl font-semibold">Flight Management</h1>
+          <p className="text-xs text-gray-500">
+            Manage flights, schedules, and routes
+          </p>
+        </div>
+      
+        {/* RIGHT ACTION BUTTONS */}
+        <div className="flex items-center gap-2 text-xs">
+          <button className="border px-3 py-1.5 rounded" onClick={() => setOpenCurrencyModal(true)}>Currency Exchange</button>
+          <button className="border px-3 py-1.5 rounded">Ticket Price</button>
 
-  {/* LEFT TITLE */}
-  <div>
-    <h1 className="text-xl font-semibold">Flight Management</h1>
-    <p className="text-xs text-gray-500">
-      Manage flights, schedules, and routes
-    </p>
-  </div>
-
-  {/* RIGHT BUTTON GROUP */}
-  <div className="flex items-center gap-4">
-
-    {/* BUTTONS */}
-    <div className="flex items-center gap-2 text-xs">
-      <button className="border px-3 py-1.5 rounded hover:bg-gray-50">
-        Currency Exchange
-      </button>
-
-      <button className="border px-3 py-1.5 rounded hover:bg-gray-50">
-        Ticket Price
-      </button>
-
-      <button className="bg-black text-white px-3 py-1.5 rounded hover:opacity-90">
-        + New Flight
-      </button>
-    </div>
-
-    {/* USER ICON */}
-    <div className="w-8 h-8 border rounded-full flex items-center justify-center text-xs bg-gray-100">
-      U
-    </div>
-  </div>
-</div>
-
+        </div>
+      </div>
 
     {/* FILTERS BOX */}
     <div className="bg-white border rounded p-4 mb-6">
@@ -318,6 +302,71 @@ export default function FlightManagement() {
           </div>
         </div>
       </div>
+
+       {/* =================== CURRENCY MODAL =================== */}
+      {openCurrencyModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white w-[800px] rounded shadow-lg relative">
+            <div className="flex justify-between items-start p-6 border-b">
+              <div>
+                <h2 className="text-xl font-semibold">Currency Exchange Management</h2>
+                <p className="text-gray-500 text-sm">
+                  Update exchange rates for pricing calculations
+                </p>
+              </div>
+              <button
+                onClick={() => setOpenCurrencyModal(false)}
+                className="text-xl px-2"
+              >
+                ✖
+              </button>
+            </div>
+
+            <div className="p-6">
+              <h3 className="font-medium mb-3">Current Exchange Rates</h3>
+
+              <table className="w-full border">
+                <thead className="bg-gray-100 text-sm text-gray-600">
+                  <tr>
+                    <th className="p-3 text-left">Currency</th>
+                    <th className="p-3 text-left">Current Rate (to USD)</th>
+                    <th className="p-3 text-left">New Rate</th>
+                    <th className="p-3 text-left">Last Updated</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr className="border-t">
+                    <td className="p-3">EUR</td>
+                    <td className="p-3">1.12</td>
+                    <td className="p-3">
+                      <input
+                        type="text"
+                        value={rate}
+                        onChange={(e) => setRate(e.target.value)}
+                        className="border p-2 w-24"
+                      />
+                    </td>
+                    <td className="p-3 text-gray-500 text-sm">2 hours ago</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div className="flex justify-between mt-6">
+                <button
+                  onClick={() => setOpenCurrencyModal(false)}
+                  className="px-4 py-2 border rounded"
+                >
+                  Cancel
+                </button>
+                <button className="px-4 py-2 bg-black text-white rounded">
+                  Update Rates & Continue
+                </button>
+                 </div>
+            </div>
+          </div>
     </div>
+      )}
+    </div>  
   );
 }
