@@ -110,14 +110,10 @@ export default function BookingManagement() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F7F7F7] flex text-sm">
-      <div className="w-56 bg-white border-r"></div>
-
+    <div className="w-full flex text-sm">
       <div className="flex-1 flex flex-col p-8 gap-6">
-        <div className="flex items-center justify-end mb-6" />
-
         {/* FILTER PANEL */}
-        <div className="bg-white border rounded-lg p-5 flex flex-col gap-4 shadow-sm">
+        <div className="bg-white rounded-lg p-5 flex flex-col gap-4 shadow-sm">
           <div className="grid grid-cols-4 gap-4">
             <div>
               <label className="text-gray-600 block mb-1">Search Bookings</label>
@@ -189,9 +185,9 @@ export default function BookingManagement() {
         </div>
 
         {/* TABLE */}
-        <div className="bg-white border rounded-lg shadow-sm">
+        <div className="bg-white rounded-xl shadow-sm">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-100 border-b-gray-50">
               <tr>
                 <th className="p-3 w-10"></th>
                 <th className="p-3 text-left">Booking ID</th>
@@ -207,7 +203,7 @@ export default function BookingManagement() {
 
             <tbody>
               {TABLE_DATA.map((row, i) => (
-                <tr key={i} className="border-b hover:bg-gray-50">
+                <tr key={i} className="border-b-gray-400 ">
                   <td className="p-3"><input type="checkbox" /></td>
                   <td className="p-3">{row.id}</td>
                   <td className="p-3">{row.customer}</td>

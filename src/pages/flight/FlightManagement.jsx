@@ -7,13 +7,7 @@ export default function FlightManagement() {
     <div className="w-full">
       {/* HEADER */}
       <div className="flex justify-between items-start mb-4">
-        <div>
-          <h1 className="text-xl font-semibold">Flight Management</h1>
-          <p className="text-xs text-gray-500">
-            Manage flights, schedules, and routes
-          </p>
-        </div>
-      
+        
         {/* RIGHT ACTION BUTTONS */}
         <div className="flex items-center gap-2 text-xs">
           <button className="border px-3 py-1.5 rounded" onClick={() => setOpenCurrencyModal(true)}>Currency Exchange</button>

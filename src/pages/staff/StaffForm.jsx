@@ -16,12 +16,6 @@ export default function StaffForm() {
 
   return (
     <div className="flex-1 p-6">
-      {/* HEADER */}
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold">Add Staff Member</h2>
-        <p className="text-xs text-gray-500">Enter staff member details</p>
-      </div>
-
       {/* FORM CARD */}
       <div className="border bg-white rounded p-5 space-y-6">
         

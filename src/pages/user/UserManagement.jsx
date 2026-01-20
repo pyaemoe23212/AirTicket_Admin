@@ -33,13 +33,6 @@ export default function UserManagement() {
 
   return (
     <div className="flex-1 p-6">
-
-      {/* HEADER */}
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold">User Management</h2>
-        <p className="text-xs text-gray-500">Manage user accounts and permissions</p>
-      </div>
-
       {/* FILTER BOX */}
       <div className="border rounded p-4 mb-5 bg-white">
         <div className="grid grid-cols-5 gap-4 mb-4">

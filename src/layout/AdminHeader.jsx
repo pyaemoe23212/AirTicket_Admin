@@ -14,13 +14,22 @@ const HEADER_CONFIG = {
   },
   "/admin/users": {
     title: "User Management",
-   
+  },
+  "/admin/bookings/bookingform": {
+    title: "New Booking",
+  },
+  "/admin/flights/flightform": {
+    title: "New Flight",
+  },
+  "/admin/staff/staff-form": {
+    title: "Add Staff Member",
   },
   "/admin/staff": {
     title: "Staff Management",
     actionLabel: "+ New Staff",
     actionPath: "/admin/staff/staff-form",
   },
+  
 };
 
 export default function AdminHeader() {

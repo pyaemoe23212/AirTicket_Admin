@@ -16,15 +16,6 @@ export default function StaffManagement() {
 
   return (
     <div className="flex-1 p-6">
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-4">
-        <div>
-          <h2 className="text-xl font-semibold">Staff Management</h2>
-          <p className="text-xs text-gray-500">Manage staff members, roles, and permissions</p>
-        </div>
-        <button className="px-4 py-2 bg-black text-white rounded text-sm">+ Add Staff</button>
-      </div>
-
       {/* ROLES */}
       <div className="border rounded bg-white p-4 mb-6">
         <h3 className="font-medium mb-3 text-sm">Roles & Permissions</h3>
