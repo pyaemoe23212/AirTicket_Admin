@@ -7,6 +7,8 @@ import FlightForm from "../pages/flight/FlightForm"
 import UserManagement from "../pages/user/UserManagement"
 import StaffManagement from "../pages/staff/StaffManagement"
 import StaffForm from "../pages/staff/StaffForm"
+import FlightView from "../pages/flight/FlightView"
+import FlightEdit from "../pages/flight/FlightEdit"
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,14 @@ const router = createBrowserRouter([
       {
         path: "/admin/flights",
         Component: FlightManagement,
+      },
+      {
+        path: "/admin/flights/:flightId",
+        Component: FlightView,
+      },
+      {
+        path: "/admin/flights/:flightId/flight-edit",
+        Component: FlightEdit,
       },
       {
         path: "/admin/flights/flightform",
