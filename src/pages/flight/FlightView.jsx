@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import FlightService from "../../data/FlightService"
+import FlightService from "../../service/flightService";
 
 export default function FlightView() {
   const { flightId } = useParams();
@@ -33,7 +33,8 @@ export default function FlightView() {
   }
 
   if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!flight) return <div className="p-6 text-center">Flight not found</div>;
 
   return (
@@ -57,9 +58,18 @@ export default function FlightView() {
             <DetailItem label="Airline" value={flight.airline} />
             <DetailItem label="Status" value={flight.status} />
             <DetailItem label="Origin Airport" value={flight.originAirport} />
-            <DetailItem label="Destination Airport" value={flight.destinationAirport} />
-            <DetailItem label="Departure" value={`${flight.departureDate} ${flight.departureTime}`} />
-            <DetailItem label="Arrival" value={`${flight.arrivalDate} ${flight.arrivalTime}`} />
+            <DetailItem
+              label="Destination Airport"
+              value={flight.destinationAirport}
+            />
+            <DetailItem
+              label="Departure"
+              value={`${flight.departureDate} ${flight.departureTime}`}
+            />
+            <DetailItem
+              label="Arrival"
+              value={`${flight.arrivalDate} ${flight.arrivalTime}`}
+            />
             <DetailItem label="Duration" value={flight.duration} />
             <DetailItem label="Aircraft Type" value={flight.aircraftType} />
           </div>
@@ -68,10 +78,22 @@ export default function FlightView() {
         <section>
           <h2 className="text-lg font-semibold mb-4">Capacity & Pricing</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <DetailItem label="Total Capacity" value={`${flight.totalCapacity} seats`} />
-            <DetailItem label="Available Seats" value={`${flight.availableSeats} seats`} />
-            <DetailItem label="Booked Seats" value={`${flight.bookedSeats} seats`} />
-            <DetailItem label="Base Price" value={`${flight.currency} ${flight.basePrice}`} />
+            <DetailItem
+              label="Total Capacity"
+              value={`${flight.totalCapacity} seats`}
+            />
+            <DetailItem
+              label="Available Seats"
+              value={`${flight.availableSeats} seats`}
+            />
+            <DetailItem
+              label="Booked Seats"
+              value={`${flight.bookedSeats} seats`}
+            />
+            <DetailItem
+              label="Base Price"
+              value={`${flight.currency} ${flight.basePrice}`}
+            />
           </div>
         </section>
 
@@ -88,9 +110,21 @@ export default function FlightView() {
 
         <section className="text-sm text-gray-600">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div><strong>Created Date:</strong><br />{flight.createdDate}</div>
-            <div><strong>Modified Date:</strong><br />{flight.lastModified}</div>
-            <div><strong>Modified By:</strong><br />{flight.modifiedBy}</div>
+            <div>
+              <strong>Created Date:</strong>
+              <br />
+              {flight.createdDate}
+            </div>
+            <div>
+              <strong>Modified Date:</strong>
+              <br />
+              {flight.lastModified}
+            </div>
+            <div>
+              <strong>Modified By:</strong>
+              <br />
+              {flight.modifiedBy}
+            </div>
           </div>
         </section>
       </div>

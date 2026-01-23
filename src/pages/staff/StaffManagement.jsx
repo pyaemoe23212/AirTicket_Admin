@@ -1,27 +1,57 @@
-export default function StaffManagement() {
-  const roles = [
-    { id: 1, title: "Super Admin", desc: "Full Access", count: 3 },
-    { id: 2, title: "Admin", desc: "High-level Access", count: 8 },
-    { id: 3, title: "Manager", desc: "Operational Access", count: 15 },
-    { id: 4, title: "Supervisor", desc: "Store Access", count: 22 },
-    { id: 5, title: "Agent", desc: "Limited Access", count: 78 },
-    { id: 6, title: "Support", desc: "Customer Support", count: 21 },
-  ];
+// src/pages/staff/StaffManagement.jsx
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { mockRoles, getAllStaff, deleteStaffById } from "../../service/staffService";
 
-  const staff = [
-    { id: 1, name: "Sarah Johnson", email: "sarah.johnson@airline.com", role: "Admin", registration: "Jan 15, 2024", lastActive: "2 hours ago", status: "Active" },
-    { id: 2, name: "Michael Chen", email: "michael.chen@airline.com", role: "Manager", registration: "Feb 3, 2024", lastActive: "5 minutes ago", status: "Active" },
-    { id: 3, name: "Emily Rodriguez", email: "emily.r@airline.com", role: "Admin", registration: "Mar 12, 2024", lastActive: "1 day ago", status: "Active" },
-  ];
+export default function StaffManagement() {
+  const navigate = useNavigate();
+  const [staff, setStaff] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    getAllStaff()
+      .then(data => {
+        if (mounted) {
+          setStaff(data);
+          setLoading(false);
+        }
+      })
+      .catch(err => {
+        if (mounted) {
+          setError(err.message);
+          setLoading(false);
+        }
+      });
+    return () => { mounted = false; };
+  }, []);
+
+  const handleDelete = (id) => {
+    if (!window.confirm("Are you sure you want to remove this staff member?")) return;
+
+    deleteStaffById(id)
+      .then(() => {
+        setStaff(prev => prev.filter(s => s.id !== id));
+        alert("Staff member removed successfully");
+      })
+      .catch(err => {
+        alert("Failed to remove staff: " + err.message);
+      });
+  };
+
+  if (loading) return <div className="p-8 text-center">Loading staff members...</div>;
+  if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
 
   return (
-    <div className="flex-1 p-6">
-      {/* ROLES */}
+    <div className="flex-1 p-6 space-y-8">
+      {/* Roles & Permissions */}
+       {/* ROLES */}
       <div className="border rounded bg-white p-4 mb-6">
         <h3 className="font-medium mb-3 text-sm">Roles & Permissions</h3>
 
         <div className="space-y-3">
-          {roles.map(role => (
+          {mockRoles.map(role => (
             <div key={role.id} className="flex items-center justify-between border rounded p-3">
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 border rounded"></div>
@@ -39,50 +69,76 @@ export default function StaffManagement() {
         </div>
       </div>
 
-      {/* STAFF TABLE */}
-      <div className="border rounded bg-white">
-        <div className="px-4 py-3 border-b text-sm">
-          <p className="font-medium">All Staff Members</p>
-          <p className="text-xs text-gray-500">Total: 147 active members</p>
+      {/* Staff Table */}
+      <div className="bg-white border rounded-lg overflow-hidden shadow-sm">
+        <div className="px-6 py-4 border-b">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold">All Staff Members</h3>
+              <p className="text-sm text-gray-500">Total: {staff.length} members</p>
+            </div>
+          </div>
         </div>
 
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="p-2 border-b w-10"></th>
-              <th className="p-2 border-b text-left">Name</th>
-              <th className="p-2 border-b text-left">Email</th>
-              <th className="p-2 border-b text-left">Role</th>
-              <th className="p-2 border-b text-left">Registration Date</th>
-              <th className="p-2 border-b text-left">Last Active</th>
-              <th className="p-2 border-b text-left">Status</th>
-              <th className="p-2 border-b text-left">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {staff.map(member => (
-              <tr key={member.id} className="hover:bg-gray-50">
-                <td className="p-2 border-b text-center"><input type="checkbox" /></td>
-                <td className="p-2 border-b">{member.name}</td>
-                <td className="p-2 border-b">{member.email}</td>
-                <td className="p-2 border-b">
-                  <span className="border px-2 py-0.5 rounded text-xs">{member.role}</span>
-                </td>
-                <td className="p-2 border-b">{member.registration}</td>
-                <td className="p-2 border-b">{member.lastActive}</td>
-                <td className="p-2 border-b">
-                  <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-700">{member.status}</span>
-                </td>
-                <td className="p-2 border-b">
-                  <button className="text-xs border px-2 py-1 rounded mr-1">View</button>
-                  <button className="text-xs border px-2 py-1 rounded">Remove</button>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-max">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="p-4 text-left w-10"><input type="checkbox" /></th>
+                <th className="p-4 text-left">Name</th>
+                <th className="p-4 text-left">Email</th>
+                <th className="p-4 text-left">Role</th>
+                <th className="p-4 text-left">Registration</th>
+                <th className="p-4 text-left">Last Active</th>
+                <th className="p-4 text-left">Status</th>
+                <th className="p-4 text-left">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {staff.map(member => (
+                <tr key={member.id} className="hover:bg-gray-50">
+                  <td className="p-4"><input type="checkbox" /></td>
+                  <td className="p-4 font-medium">{member.name}</td>
+                  <td className="p-4 text-gray-600">{member.email}</td>
+                  <td className="p-4">
+                    <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-gray-100">
+                      {member.role}
+                    </span>
+                  </td>
+                  <td className="p-4 text-gray-600">{member.registration}</td>
+                  <td className="p-4 text-gray-600">{member.lastActive}</td>
+                  <td className="p-4">
+                    <span
+                      className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                        member.status === "Active"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {member.status}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate(`/admin/staff/${member.id}`)}
+                        className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleDelete(member.id)}
+                        className="border border-red-300 text-red-600 hover:bg-red-50 px-3 py-1 text-xs rounded"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

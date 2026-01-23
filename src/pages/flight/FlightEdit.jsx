@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import FlightService from "../../data/FlightService"
+import FlightService from "../../service/flightService";
 
 export default function FlightEdit() {
   const { flightId } = useParams();
@@ -24,7 +24,8 @@ export default function FlightEdit() {
   }, [flightId]);
 
   if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!flight) return <div className="p-6 text-center">Flight not found</div>;
 
   return (
@@ -34,7 +35,9 @@ export default function FlightEdit() {
 
       {/* Basic Flight Information */}
       <section className="mb-10">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Flight Information</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+          Flight Information
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -63,7 +66,10 @@ export default function FlightEdit() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Status <span className="text-red-600">*</span>
             </label>
-            <select defaultValue={flight.status} className="w-full px-4 py-2 border border-gray-300 rounded-md">
+            <select
+              defaultValue={flight.status}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            >
               <option>Scheduled</option>
               <option>Delayed</option>
               <option>Cancelled</option>
@@ -119,7 +125,9 @@ export default function FlightEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Duration
+            </label>
             <input
               type="text"
               defaultValue={flight.duration}
@@ -165,7 +173,9 @@ export default function FlightEdit() {
 
       {/* Capacity & Pricing */}
       <section className="mb-10">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Capacity & Pricing</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+          Capacity & Pricing
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -179,7 +189,9 @@ export default function FlightEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Available Seats (Auto-calculated)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Available Seats (Auto-calculated)
+            </label>
             <input
               type="number"
               defaultValue={flight.availableSeats}
@@ -189,7 +201,9 @@ export default function FlightEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Booked Seats (Read-only)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Booked Seats (Read-only)
+            </label>
             <input
               type="number"
               defaultValue={flight.bookedSeats}
@@ -214,7 +228,10 @@ export default function FlightEdit() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Currency <span className="text-red-600">*</span>
             </label>
-            <select defaultValue={flight.currency} className="w-full px-4 py-2 border border-gray-300 rounded-md">
+            <select
+              defaultValue={flight.currency}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            >
               <option>USD</option>
               <option>EUR</option>
               <option>GBP</option>
@@ -226,7 +243,10 @@ export default function FlightEdit() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Class Type <span className="text-red-600">*</span>
             </label>
-            <select defaultValue={flight.classType} className="w-full px-4 py-2 border border-gray-300 rounded-md">
+            <select
+              defaultValue={flight.classType}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md"
+            >
               <option>Economy</option>
               <option>Premium Economy</option>
               <option>Business</option>
@@ -238,10 +258,14 @@ export default function FlightEdit() {
 
       {/* Gate & Terminal + Notes */}
       <section className="mb-10">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Additional Information</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
+          Additional Information
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gate Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Gate Number
+            </label>
             <input
               type="text"
               defaultValue={flight.gate}
@@ -250,7 +274,9 @@ export default function FlightEdit() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Terminal</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Terminal
+            </label>
             <input
               type="text"
               defaultValue={flight.terminal}
@@ -261,7 +287,9 @@ export default function FlightEdit() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Notes / Special Instructions</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Notes / Special Instructions
+          </label>
           <textarea
             defaultValue={flight.notes}
             rows={4}
@@ -275,15 +303,18 @@ export default function FlightEdit() {
       <section className="mb-10 text-sm text-gray-600 bg-gray-50 p-5 rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <strong>Created Date:</strong><br />
+            <strong>Created Date:</strong>
+            <br />
             {flight.createdDate}
           </div>
           <div>
-            <strong>Last Modified:</strong><br />
+            <strong>Last Modified:</strong>
+            <br />
             {flight.lastModified}
           </div>
           <div>
-            <strong>Modified By:</strong><br />
+            <strong>Modified By:</strong>
+            <br />
             {flight.modifiedBy}
           </div>
         </div>
