@@ -1,7 +1,6 @@
-// pages/staff/StaffView.jsx
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getStaffById } from "../../service/staffService";
+import { getStaffById } from "../../service/api";
 
 export default function StaffView() {
   const { id } = useParams();
@@ -14,19 +13,22 @@ export default function StaffView() {
   useEffect(() => {
     let mounted = true;
 
-    getStaffById(id)
-      .then((data) => {
+    const fetchStaff = async () => {
+      try {
+        const data = await getStaffById(id);
         if (mounted) {
           setStaff(data);
           setLoading(false);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         if (mounted) {
           setError(err.message);
           setLoading(false);
         }
-      });
+      }
+    };
+
+    fetchStaff();
 
     return () => {
       mounted = false;
@@ -110,7 +112,7 @@ export default function StaffView() {
 
             <div>
               <label className="block text-sm font-medium text-gray-600">Phone Number</label>
-              <p className="mt-1 font-medium">{staff.phone || "+(555) 123-4567"}</p>
+              <p className="mt-1 font-medium">{staff.phone || "N/A"}</p>
             </div>
 
             <div>

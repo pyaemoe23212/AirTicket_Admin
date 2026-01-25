@@ -1,41 +1,57 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import FlightService from "../../service/flightService";
+import { getAllFlights, deleteFlight } from "../../service/api";
 
 export default function FlightManagement() {
   const navigate = useNavigate();
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [openCurrencyModal, setOpenCurrencyModal] = useState(false);
   const [eurRate, setEurRate] = useState("1.12");
 
   useEffect(() => {
+    let mounted = true;
     const fetchFlights = async () => {
       try {
-        const data = await FlightService.getAllFlights();
-        setFlights(data);
-      } catch (error) {
-        console.error("Error fetching flights:", error);
-      } finally {
-        setLoading(false);
+        const data = await getAllFlights();
+        if (mounted) {
+          setFlights(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err.message);
+          setLoading(false);
+        }
       }
     };
     fetchFlights();
+    return () => { mounted = false; };
   }, []);
 
+  const handleDelete = async (flightId) => {
+    if (!window.confirm("Are you sure you want to delete this flight?")) return;
+
+    try {
+      await deleteFlight(flightId);
+      setFlights(prev => prev.filter(f => f.id !== flightId));
+      alert("Flight deleted successfully");
+    } catch (err) {
+      alert("Failed to delete flight: " + err.message);
+    }
+  };
+
   const getStatusStyle = (status) => {
-    const base =
-      "inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border ";
-    if (status === "Scheduled")
-      return base + "bg-green-100 text-green-800 border-green-200";
-    if (status === "Delayed")
-      return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
-    if (status === "Cancelled")
-      return base + "bg-red-100 text-red-800 border-red-200";
+    const base = "inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border ";
+    if (status === "Scheduled") return base + "bg-green-100 text-green-800 border-green-200";
+    if (status === "Delayed") return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
+    if (status === "Cancelled") return base + "bg-red-100 text-red-800 border-red-200";
     return base + "bg-gray-100 text-gray-800 border-gray-200";
   };
 
   if (loading) return <div className="p-6 text-center">Loading flights...</div>;
+  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
 
   return (
     <div className="space-y-6">
@@ -142,12 +158,16 @@ export default function FlightManagement() {
                       View
                     </button>
                     <button
-                      onClick={() =>
-                        navigate(`/admin/flights/${flight.id}/flight-edit`)
-                      }
+                      onClick={() => navigate(`/admin/flights/${flight.id}/flight-edit`)}
                       className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
                     >
                       Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(flight.id)}
+                      className="border border-red-300 text-red-600 px-3 py-1 text-xs rounded hover:bg-red-50"
+                    >
+                      Delete
                     </button>
                   </div>
                 </td>

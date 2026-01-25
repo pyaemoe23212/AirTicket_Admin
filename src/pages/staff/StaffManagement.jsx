@@ -1,7 +1,6 @@
-// src/pages/staff/StaffManagement.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockRoles, getAllStaff, deleteStaffById } from "../../service/staffService";
+import { mockRoles, getAllStaff, deleteStaffById } from "../../service/api";
 
 export default function StaffManagement() {
   const navigate = useNavigate();
@@ -11,33 +10,34 @@ export default function StaffManagement() {
 
   useEffect(() => {
     let mounted = true;
-    getAllStaff()
-      .then(data => {
+    const fetchStaff = async () => {
+      try {
+        const data = await getAllStaff();
         if (mounted) {
           setStaff(data);
           setLoading(false);
         }
-      })
-      .catch(err => {
+      } catch (err) {
         if (mounted) {
           setError(err.message);
           setLoading(false);
         }
-      });
+      }
+    };
+    fetchStaff();
     return () => { mounted = false; };
   }, []);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to remove this staff member?")) return;
 
-    deleteStaffById(id)
-      .then(() => {
-        setStaff(prev => prev.filter(s => s.id !== id));
-        alert("Staff member removed successfully");
-      })
-      .catch(err => {
-        alert("Failed to remove staff: " + err.message);
-      });
+    try {
+      await deleteStaffById(id);
+      setStaff(prev => prev.filter(s => s.id !== id));
+      alert("Staff member removed successfully");
+    } catch (err) {
+      alert("Failed to remove staff: " + err.message);
+    }
   };
 
   if (loading) return <div className="p-8 text-center">Loading staff members...</div>;
@@ -46,7 +46,6 @@ export default function StaffManagement() {
   return (
     <div className="flex-1 p-6 space-y-8">
       {/* Roles & Permissions */}
-       {/* ROLES */}
       <div className="border rounded bg-white p-4 mb-6">
         <h3 className="font-medium mb-3 text-sm">Roles & Permissions</h3>
 

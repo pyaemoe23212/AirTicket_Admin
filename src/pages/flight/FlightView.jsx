@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import FlightService from "../../service/flightService";
+import { getFlightById } from "../../service/api";
 
 export default function FlightView() {
   const { flightId } = useParams();
@@ -10,17 +10,28 @@ export default function FlightView() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchFlight = async () => {
       try {
-        const data = await FlightService.getFlightById(flightId);
-        setFlight(data);
+        const data = await getFlightById(flightId);
+        if (mounted) {
+          setFlight(data);
+          setLoading(false);
+        }
       } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setError(err.message);
+          setLoading(false);
+        }
       }
     };
+
     fetchFlight();
+
+    return () => {
+      mounted = false;
+    };
   }, [flightId]);
 
   function DetailItem({ label, value }) {
@@ -32,9 +43,8 @@ export default function FlightView() {
     );
   }
 
-  if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (error)
-    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (loading) return <div className="p-6 text-center">Loading flight details...</div>;
+  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!flight) return <div className="p-6 text-center">Flight not found</div>;
 
   return (
@@ -58,10 +68,7 @@ export default function FlightView() {
             <DetailItem label="Airline" value={flight.airline} />
             <DetailItem label="Status" value={flight.status} />
             <DetailItem label="Origin Airport" value={flight.originAirport} />
-            <DetailItem
-              label="Destination Airport"
-              value={flight.destinationAirport}
-            />
+            <DetailItem label="Destination Airport" value={flight.destinationAirport} />
             <DetailItem
               label="Departure"
               value={`${flight.departureDate} ${flight.departureTime}`}
