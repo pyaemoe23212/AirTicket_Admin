@@ -56,8 +56,7 @@ export default function FlightManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Flight Management</h1>
+      <div className="flex items-center justify-between">      
         <div className="flex gap-3">
           <button
             onClick={() => setOpenCurrencyModal(true)}
@@ -67,12 +66,6 @@ export default function FlightManagement() {
           </button>
           <button className="border px-4 py-2 text-sm rounded hover:bg-gray-50">
             Ticket Price
-          </button>
-          <button
-            onClick={() => navigate("/admin/flights/flightform")}
-            className="bg-black text-white px-4 py-2 text-sm rounded hover:bg-gray-800"
-          >
-            + New Flight
           </button>
         </div>
       </div>

@@ -1,3 +1,99 @@
+const mockBookings = [
+  {
+    id: "BK-10245",
+    bookingId: "BK-10245",
+    customer: "John Smith",
+    email: "john.smith@email.com",
+    phone: "+1 (555) 123-4567",
+    route: "JFK → LHR",
+    flightNumber: "AA 101",
+    travelDate: "2026-01-15",
+    departureTime: "09:30",
+    arrivalTime: "21:45",
+    passengers: 1,
+    seat: "12A",
+    travelClass: "Economy",
+    amount: 850.00,
+    currency: "USD",
+    status: "Confirmed",
+    paymentStatus: "Paid",
+    bookedAt: "2025-12-20",
+  },
+  {
+    id: "BK-10246",
+    bookingId: "BK-10246",
+    customer: "Sarah Johnson",
+    email: "sarah.johnson@email.com",
+    phone: "+44 20 7946 0958",
+    route: "LAX → NRT",
+    flightNumber: "UA 875",
+    travelDate: "2026-01-16",
+    departureTime: "11:00",
+    arrivalTime: "15:15",
+    passengers: 2,
+    seat: "14C, 14D",
+    travelClass: "Premium Economy",
+    amount: 1200.00,
+    currency: "USD",
+    status: "Pending",
+    paymentStatus: "Pending",
+    bookedAt: "2025-12-22",
+  },
+];
+
+const mockUsers = [
+  {
+    id: 1,
+    name: "Sarah Johnson",
+    email: "sarah.johnson@airline.com",
+    phone: "+1 (555) 123-4567",
+    registration: "Jan 15, 2024",
+    lastActive: "2 hours ago",
+    status: "Active",
+    type: "Business Traveler",
+    preferredClass: "Business",
+    bookingStats: { total: 12, totalSpent: 4580, cancelled: 2, avgBooking: 382 },
+    recentBookings: [
+      { id: "BK-101", date: "Jan 05, 2024", route: "NYC → LAX", amount: 420 },
+      { id: "BK-102", date: "Dec 28, 2023", route: "LAX → SEA", amount: 260 },
+      { id: "BK-103", date: "Dec 10, 2023", route: "SEA → MIA", amount: 390 },
+    ],
+  },
+  {
+    id: 2,
+    name: "Michael Chen",
+    email: "michael.chen@airline.com",
+    phone: "+66 81 234 5678",
+    registration: "Feb 3, 2024",
+    lastActive: "5 minutes ago",
+    status: "Active",
+    type: "Leisure Traveler",
+    preferredClass: "Economy",
+  },
+  {
+    id: 3,
+    name: "Emily Rodriguez",
+    email: "emily.r@airline.com",
+    phone: "+1 (555) 987-6543",
+    registration: "Mar 12, 2024",
+    lastActive: "1 day ago",
+    status: "Active",
+    type: "Frequent Flyer",
+    preferredClass: "Economy",
+  },
+  {
+    id: 4,
+    name: "David Park",
+    email: "david.park@airline.com",
+    phone: "+82 10 1234 5678",
+    registration: "Apr 7, 2024",
+    lastActive: "3 days ago",
+    status: "Suspended",
+    type: "Standard",
+    preferredClass: "Economy",
+  },
+  
+];
 
 const mockRoles = [
   { id: 1, title: "Super Admin", desc: "Full Access", count: 3, color: "bg-purple-100 text-purple-800" },
@@ -152,6 +248,120 @@ const mockFlights = [
   },
 ];
 
+export const createBooking = async (bookingData) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const newBooking = {
+        id: `BK-${100000 + mockBookings.length + 1}`,
+        bookingId: `BK-${100000 + mockBookings.length + 1}`,
+        bookedAt: new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+        status: bookingData.status || "Pending",
+        paymentStatus: bookingData.paymentStatus || "Pending",
+        ...bookingData,
+      };
+
+      mockBookings.push(newBooking);
+      resolve(newBooking);
+    }, 400); // fake network delay
+  });
+};
+
+export const getAllBookings = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve([...mockBookings]), 400);
+  });
+};
+
+export const getBookingById = (bookingId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const booking = mockBookings.find(b => b.bookingId === bookingId);
+      if (booking) resolve(booking);
+      else reject(new Error("Booking not found"));
+    }, 300);
+  });
+};
+
+export const deleteBookingById = (bookingId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const index = mockBookings.findIndex(b => b.bookingId === bookingId);
+      if (index !== -1) {
+        mockBookings.splice(index, 1);
+        resolve({ success: true, message: "Booking deleted" });
+      } else {
+        reject(new Error("Booking not found"));
+      }
+    }, 400);
+  });
+};
+
+export const updateBooking = (bookingId, updates) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const index = mockBookings.findIndex(b => b.bookingId === bookingId);
+      if (index !== -1) {
+        mockBookings[index] = { ...mockBookings[index], ...updates };
+        resolve(mockBookings[index]);
+      } else {
+        reject(new Error("Booking not found"));
+      }
+    }, 400);
+  });
+};
+
+// ────────────────────────────────────────────────
+// User CRUD (promise-based, fake delay)
+// ────────────────────────────────────────────────
+
+export const getAllUsers = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve([...mockUsers]), 400);
+  });
+};
+
+export const getUserById = (userId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const user = mockUsers.find((u) => u.id === Number(userId));
+      if (user) resolve(user);
+      else reject(new Error("User not found"));
+    }, 300);
+  });
+};
+
+export const updateUser = (userId, updates) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const index = mockUsers.findIndex((u) => u.id === Number(userId));
+      if (index !== -1) {
+        mockUsers[index] = { ...mockUsers[index], ...updates };
+        resolve(mockUsers[index]);
+      } else {
+        reject(new Error("User not found"));
+      }
+    }, 400);
+  });
+};
+
+export const deleteUserById = (userId) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const index = mockUsers.findIndex((u) => u.id === Number(userId));
+      if (index !== -1) {
+        mockUsers.splice(index, 1);
+        resolve({ success: true, message: "User deleted" });
+      } else {
+        reject(new Error("User not found"));
+      }
+    }, 400);
+  });
+};
+
 // =====================
 // Staff CRUD Operations
 // =====================
@@ -171,6 +381,7 @@ export const getStaffById = (id) => {
     }, 250);
   });
 };
+
 
 export const createStaff = (staffData) => {
   return new Promise((resolve) => {
@@ -325,4 +536,4 @@ export const calculateAvailableSeats = (totalCapacity, bookedSeats) => {
 // Export Mock Data
 // =====================
 
-export { mockRoles, mockStaff, mockFlights };
+export { mockRoles, mockStaff, mockFlights, mockBookings, mockUsers };

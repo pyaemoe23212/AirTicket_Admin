@@ -1,15 +1,19 @@
 import { createBrowserRouter } from "react-router";
-import AdminLayout from "../layout/AdminLayout"
-import BookingManagement from "../pages/booking/BookingManagement"
-import BookingForm from "../pages/booking/BookingForm"
-import FlightManagement from "../pages/flight/FlightManagement"
-import FlightForm from "../pages/flight/FlightForm"
-import UserManagement from "../pages/user/UserManagement"
-import StaffManagement from "../pages/staff/StaffManagement"
-import StaffForm from "../pages/staff/StaffForm"
-import FlightView from "../pages/flight/FlightView"
-import FlightEdit from "../pages/flight/FlightEdit"
-import StaffView from "../pages/staff/StaffView"
+import AdminLayout from "../layout/AdminLayout";
+import BookingManagement from "../pages/booking/BookingManagement";
+import BookingForm from "../pages/booking/BookingForm";
+import BookingView from "../pages/booking/BookingView";
+import BookingEdit from "../pages/booking/BookingEdit";
+import FlightManagement from "../pages/flight/FlightManagement";
+import FlightForm from "../pages/flight/FlightForm";
+import UserManagement from "../pages/user/UserManagement";
+import UserView from "../pages/user/UserView";
+import UserEdit from "../pages/user/UserEdit";
+import StaffManagement from "../pages/staff/StaffManagement";
+import StaffForm from "../pages/staff/StaffForm";
+import FlightView from "../pages/flight/FlightView";
+import FlightEdit from "../pages/flight/FlightEdit";
+import StaffView from "../pages/staff/StaffView";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +27,14 @@ const router = createBrowserRouter([
       {
         path: "/admin/bookings/bookingform",
         Component: BookingForm,
+      },
+      {
+        path: "/admin/bookings/:bookingId",
+        Component: BookingView,
+      },
+      {
+        path: "/admin/bookings/:bookingId/edit",
+        Component: BookingEdit,
       },
       {
         path: "/admin/flights",
@@ -45,6 +57,14 @@ const router = createBrowserRouter([
         Component: UserManagement,
       },
       {
+        path: "/admin/users/:id",
+        Component: UserView,
+      },
+      {
+        path: "/admin/users/:id/edit",
+        Component: UserEdit,
+      },
+      {
         path: "/admin/staff",
         Component: StaffManagement,
       },
@@ -55,7 +75,7 @@ const router = createBrowserRouter([
       {
         path: "/admin/staff/staff-form",
         Component: StaffForm,
-      }
+      },
     ],
   },
 ]);
