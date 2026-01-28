@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createBooking } from "../../service/api";
+
 export default function BookingForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -34,7 +35,6 @@ export default function BookingForm() {
     setError(null);
 
     try {
-      // can add more fields or calculations here
       const newBooking = {
         customer: formData.customer,
         email: formData.email,
