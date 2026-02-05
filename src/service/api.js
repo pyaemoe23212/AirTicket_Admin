@@ -98,10 +98,7 @@ const mockUsers = [
 const mockRoles = [
   { id: 1, title: "Super Admin", desc: "Full Access", count: 3, color: "bg-purple-100 text-purple-800" },
   { id: 2, title: "Admin", desc: "High-level Access", count: 8, color: "bg-blue-100 text-blue-800" },
-  { id: 3, title: "Manager", desc: "Operational Access", count: 15, color: "bg-green-100 text-green-800" },
-  { id: 4, title: "Supervisor", desc: "Store Access", count: 22, color: "bg-yellow-100 text-yellow-800" },
-  { id: 5, title: "Agent", desc: "Limited Access", count: 78, color: "bg-gray-100 text-gray-700" },
-  { id: 6, title: "Support", desc: "Customer Support", count: 21, color: "bg-indigo-100 text-indigo-800" },
+  { id: 3, title: "Agent", desc: "Operational Access", count: 15, color: "bg-green-100 text-green-800" },
 ];
 
 const mockStaff = [
@@ -121,7 +118,7 @@ const mockStaff = [
     id: 2,
     name: "Michael Chen",
     email: "michael.chen@airline.com",
-    role: "Manager",
+    role: "Super Admin",
     roleId: 3,
     registration: "Feb 3, 2024",
     lastActive: "5 minutes ago",
@@ -157,7 +154,7 @@ const mockStaff = [
     id: 5,
     name: "Anna Kowalski",
     email: "anna.k@airline.com",
-    role: "Support",
+    role: "Agent",
     roleId: 6,
     registration: "Sep 08, 2025",
     lastActive: "Never",
