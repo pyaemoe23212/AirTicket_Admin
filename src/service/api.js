@@ -119,7 +119,7 @@ const mockUsers = [
     phone: "+1 (555) 234-5678",
     registration: "Aug 2, 2024",
     lastActive: "6 hours ago",
-    tatus: "Active",
+    status: "Active",
     bookingStats: { total: 6, totalSpent: 2700, cancelled: 0, avgBooking: 450 },
   },
 ];
