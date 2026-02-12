@@ -14,6 +14,7 @@ import StaffForm from "../pages/staff/StaffForm";
 import FlightView from "../pages/flight/FlightView";
 import FlightEdit from "../pages/flight/FlightEdit";
 import StaffView from "../pages/staff/StaffView";
+import StaffEdit from "../pages/staff/StaffEdit";
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
       {
         path: "/admin/staff/staff-form",
         Component: StaffForm,
+      },
+      {
+        path: "/admin/staff/:id/edit",
+        Component: StaffEdit,
       },
     ],
   },

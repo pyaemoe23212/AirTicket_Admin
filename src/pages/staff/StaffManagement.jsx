@@ -44,7 +44,13 @@ export default function StaffManagement() {
   if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
 
   return (
-    <div className="flex-1 p-6 space-y-8">
+    <div className="flex-1 p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">Manage staff members, roles, and permissions</p>
+        </div>
+        </div>
       {/* Roles & Permissions */}
       <div className="border rounded bg-white p-4 mb-6">
         <h3 className="font-medium mb-3 text-sm">Roles & Permissions</h3>
@@ -126,10 +132,17 @@ export default function StaffManagement() {
                         View
                       </button>
                       <button
-                        onClick={() => handleDelete(member.id)}
-                        className="border border-red-300 text-red-600 hover:bg-red-50 px-3 py-1 text-xs rounded"
+                       onClick={() => navigate(`/admin/staff/${member.id}/edit`)}
+                       className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded"
                       >
-                        Remove
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(member.id)}
+                        className="border border-gray-300 hover:bg-gray-100 p-2 rounded"
+                        title="Delete"
+                      >
+                        🗑️
                       </button>
                     </div>
                   </td>
