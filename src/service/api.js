@@ -111,9 +111,15 @@ const mockStaff = [
     registration: "Jan 15, 2024",
     lastActive: "2 hours ago",
     status: "Active",
-    phone: "+66 92 345 6789",
+    phone: "+1 (555) 123-4567",
     avatar: "https://i.pravatar.cc/150?img=68",
-  },
+    activity: {
+      totalLogins: 342,
+      actionsThisMonth: 1287,
+      accountAge: 156,
+       },
+     },
+  
   {
     id: 2,
     name: "Michael Chen",

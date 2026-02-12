@@ -28,10 +28,7 @@ export default function UserManagement() {
     };
 
     fetchUsers();
-
-    return () => {
-      mounted = false;
-    };
+    return () => (mounted = false);
   }, []);
 
   const handleDelete = async (userId) => {
@@ -46,119 +43,123 @@ export default function UserManagement() {
     }
   };
 
-  const getStatusStyle = (status) => {
-    return status === "Active"
-      ? "bg-green-100 text-green-800 border-green-200"
-      : "bg-red-100 text-red-800 border-red-200";
-  };
-
   if (loading) return <div className="p-6 text-center">Loading users...</div>;
   if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
 
   return (
-    <div className="flex-1 p-6 space-y-6">
-      {/* Filter Box */}
-      <div className="border rounded p-4 bg-white">
-        <div className="grid grid-cols-5 gap-4 mb-4">
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-1">Search Users</label>
-            <div className="relative">
-              <span className="absolute left-3 top-2.5 text-gray-400 text-sm">🔍</span>
-              <input
-                type="text"
-                placeholder="Name, Email, ID..."
-                className="border rounded pl-8 pr-3 py-2 text-sm w-full"
-              />
-            </div>
+    <div className="flex-1 p-6 space-y-6 bg-gray-50 min-h-screen">
+
+      {/* Header */}
+      <div>
+        
+        <p className="text-xs text-gray-500">Manage user accounts and permissions</p>
+      </div>
+
+      {/* Filters */}
+      <div className="border rounded bg-white p-4">
+        <div className="grid grid-cols-5 gap-4 items-end">
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Search Bookings</label>
+            <input
+              
+              placeholder="Booking ID, Customer name, Email..."
+              className="border rounded px-3 py-2 text-sm w-full"
+            />
           </div>
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-1">Status</label>
+
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Status</label>
             <select className="border rounded px-3 py-2 text-sm w-full">
-              <option>All Status</option>
+              <option>Select Status</option>
               <option>Active</option>
               <option>Suspended</option>
             </select>
           </div>
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-1">Registration Date</label>
+
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Last Active</label>
             <select className="border rounded px-3 py-2 text-sm w-full">
-              <option>All Dates</option>
-              <option>Last 7 Days</option>
+              <option>Select time range</option>
             </select>
           </div>
-          <div className="flex flex-col">
-            <label className="text-xs text-gray-500 mb-1">Last Active</label>
+
+          <div>
+            <label className="text-xs text-gray-500 mb-1 block">Registration Date</label>
             <select className="border rounded px-3 py-2 text-sm w-full">
-              <option>Last Active</option>
+              <option>Select date range</option>
             </select>
           </div>
-          <button className="px-4 py-2 bg-black text-white rounded text-sm">Filter</button>
+
+          <button className="bg-gray-800 hover:bg-black text-white text-sm px-4 py-2 rounded">
+            Apply Filters
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs mt-3 text-gray-500">
+          <span>Active Filters:</span>
+          <span className="border rounded px-2 py-0.5">Status: Active</span>
+          <button className="underline">Clear All</button>
         </div>
       </div>
 
-      {/* User Table */}
-      <div className="border rounded bg-white overflow-hidden">
-        <div className="px-4 py-2 text-sm border-b flex justify-between items-center">
-          <div>
-            <span>All Users</span>
-            <p className="text-xs text-gray-500 mt-1">Showing {users.length} of {users.length} users</p>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span>Sort by:</span>
-            <select className="border rounded px-2 py-1">
-              <option>Last Active</option>
-              <option>Registration Date</option>
-            </select>
-          </div>
+      {/* Table */}
+      <div className="border rounded bg-white">
+        <div className="px-4 py-3 border-b">
+          <h2 className="text-sm font-medium">All Users</h2>
+          <p className="text-xs text-gray-500">
+            Showing {users.length} of {users.length} users
+          </p>
         </div>
 
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 text-gray-500 border-b">
             <tr>
-              <th className="p-2 border-b w-10"></th>
-              <th className="p-2 border-b text-left">Name</th>
-              <th className="p-2 border-b text-left">Email</th>
-              <th className="p-2 border-b text-left">Registration Date</th>
-              <th className="p-2 border-b text-left">Last Active</th>
-              <th className="p-2 border-b text-left">Status</th>
-              <th className="p-2 border-b text-left w-32">Actions</th>
+              <th className="p-3 text-left">Name</th>
+              <th className="p-3 text-left">Email</th>
+              <th className="p-3 text-left">Registration Date</th>
+              <th className="p-3 text-left">Last Active</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="p-2 border-b text-center">
-                  <input type="checkbox" />
+              <tr key={user.id} className="border-b hover:bg-gray-50">
+                <td className="p-3 flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-300" />
+                  {user.name}
                 </td>
-                <td className="p-2 border-b">{user.name}</td>
-                <td className="p-2 border-b">{user.email}</td>
-                <td className="p-2 border-b">{user.registration}</td>
-                <td className="p-2 border-b">{user.lastActive}</td>
-                <td className="p-2 border-b">
-                  <span
-                    className={`px-2 py-0.5 rounded text-xs border ${getStatusStyle(user.status)}`}
-                  >
+
+                <td className="p-3 text-gray-600">{user.email}</td>
+                <td className="p-3 text-gray-600">{user.registration}</td>
+                <td className="p-3 text-gray-600">{user.lastActive}</td>
+
+                <td className="p-3">
+                  <span className="border rounded px-2 py-0.5 text-xs">
                     {user.status}
                   </span>
                 </td>
-                <td className="p-2 border-b flex gap-2">
+
+                <td className="p-3 flex gap-2">
                   <button
                     onClick={() => navigate(`/admin/users/${user.id}`)}
-                    className="text-xs border px-2 py-1 rounded hover:bg-gray-100"
+                    className="border px-2 py-1 rounded text-xs hover:bg-gray-100"
                   >
                     View
                   </button>
                   <button
                     onClick={() => navigate(`/admin/users/${user.id}/edit`)}
-                    className="text-xs border px-2 py-1 rounded hover:bg-gray-100"
+                    className="border px-2 py-1 rounded text-xs hover:bg-gray-100"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(user.id)}
-                    className="text-xs border border-red-300 text-red-600 px-2 py-1 rounded hover:bg-red-50"
+                    className="border px-2 py-1 rounded text-xs text-red-500 hover:bg-red-50"
+                    title="Delete"
                   >
-                    Delete
+                    🗑
                   </button>
                 </td>
               </tr>
@@ -167,12 +168,16 @@ export default function UserManagement() {
         </table>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center p-3 text-xs">
+        <div className="flex justify-between items-center p-3 text-xs text-gray-500 border-t">
           <span>Showing 1–{users.length} of {users.length} results</span>
           <div className="flex gap-1">
-            <button className="border rounded px-2 py-1">&lt;</button>
-            <button className="border rounded px-2 py-1 bg-black text-white">1</button>
-            <button className="border rounded px-2 py-1">&gt;</button>
+            <button className="border px-2 py-1 rounded">&lt;</button>
+            <button className="border px-2 py-1 rounded bg-gray-800 text-white">1</button>
+            <button className="border px-2 py-1 rounded">2</button>
+            <button className="border px-2 py-1 rounded">3</button>
+            <button className="border px-2 py-1 rounded">...</button>
+            <button className="border px-2 py-1 rounded">6</button>
+            <button className="border px-2 py-1 rounded">&gt;</button>
           </div>
         </div>
       </div>

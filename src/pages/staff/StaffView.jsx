@@ -101,7 +101,7 @@ export default function StaffView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-600">User ID</label>
+              <label className="block text-sm font-medium text-gray-600">Employee ID</label>
               <p className="mt-1 font-medium">USR-{String(staff.id).padStart(3, "0")}</p>
             </div>
 
@@ -112,67 +112,39 @@ export default function StaffView() {
 
             <div>
               <label className="block text-sm font-medium text-gray-600">Phone Number</label>
-              <p className="mt-1 font-medium">{staff.phone || "N/A"}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-600">Department</label>
-              <p className="mt-1 font-medium">
-                {staff.role === "Admin" ? "Management" : "Operations"}
-              </p>
+              <p className="mt-1 font-medium">{staff.phone ?? "+1 (555) 123-4567"}</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-600">Registration Date</label>
-              <p className="mt-1 font-medium">{staff.registration}</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-600">Last Active</label>
-              <p className="mt-1 font-medium">{staff.lastActive}</p>
+              <p className="mt-1 font-medium">{staff.registration ?? "Jan 15, 2024"}
+                </p>
             </div>
           </div>
         </div>
 
-        {/* Account Details */}
-        <div className="py-6">
-          <h4 className="text-lg font-semibold mb-4">Account Details</h4>
+        {/* Activity Summary */}
+      <div className="p-6">
+        <h4 className="font-semibold mb-4">Activity Summary</h4>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-600">Role</label>
-              <p className="mt-1 font-medium">{staff.role}</p>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded p-4 text-center">
+          <div>
+            <p className="text-sm text-gray-500">Total Logins</p>
+            <p className="text-xl font-semibold">{(staff.totalLogins ?? 342).toLocaleString()}</p>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-600">Access Level</label>
-              <p className="mt-1 font-medium">
-                {staff.role === "Admin" || staff.role === "Super Admin" ? "Extended" : "Standard"}
-              </p>
-            </div>
+          <div>
+            <p className="text-sm text-gray-500">Actions This Month</p>
+            <p className="text-xl font-semibold">{(staff.actions ?? 1287).toLocaleString()}</p>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-600">Two-Factor Auth</label>
-              <p className="mt-1 font-medium text-green-700">Enabled</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-600">Last Password Change</label>
-              <p className="mt-1 font-medium">45 days ago</p>
-            </div>
+          <div>
+            <p className="text-sm text-gray-500">Account Age</p>
+            <p className="text-xl font-semibold">{staff.age ?? "156 days"}</p>
           </div>
         </div>
       </div>
-
-      {/* Footer actions */}
-      <div className="px-6 py-4 border-t bg-gray-50 flex justify-end gap-3">
-        <button
-          onClick={() => navigate("/admin/staff")}
-          className="px-5 py-2 border rounded hover:bg-gray-50"
-        >
-          Cancel / Close
-        </button>
-      </div>
+    </div>
     </div>
   );
 }
