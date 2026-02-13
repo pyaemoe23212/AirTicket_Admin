@@ -112,14 +112,14 @@ export default function UserManagement() {
         </div>
 
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 border-b">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Registration Date</th>
-              <th className="p-3 text-left">Last Active</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Actions</th>
+              <th className="p-4 text-left">Name</th>
+              <th className="p-4 text-left">Email</th>
+              <th className="p-4 text-left">Registration Date</th>
+              <th className="p-4 text-left">Last Active</th>
+              <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
 

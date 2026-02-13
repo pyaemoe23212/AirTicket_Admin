@@ -153,7 +153,7 @@ const mockStaff = [
     id: 2,
     name: "Michael Chen",
     email: "michael.chen@airline.com",
-    role: "Super Admin",
+    role: "Agent",
     roleId: 3,
     registration: "Feb 3, 2024",
     lastActive: "5 minutes ago",
