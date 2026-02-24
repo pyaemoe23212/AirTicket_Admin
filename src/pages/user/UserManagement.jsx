@@ -52,7 +52,7 @@ export default function UserManagement() {
       {/* Header */}
       <div>
         
-        <p className="text-xs text-gray-500">Manage user accounts and permissions</p>
+      <p className="text-xs text-gray-500">Manage user accounts and permissions</p>
       </div>
 
       {/* Filters */}
