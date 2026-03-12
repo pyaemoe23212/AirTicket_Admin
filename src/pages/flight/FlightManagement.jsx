@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllFlights, deleteFlight } from "../../service/api";
+import { getAllFlights, deleteFlight } from "../../config/api";
 
 export default function FlightManagement() {
   const navigate = useNavigate();
@@ -46,9 +46,12 @@ export default function FlightManagement() {
 
   const getStatusStyle = (status) => {
     const base = "inline-block px-2 py-1 text-xs border rounded ";
-    if (status === "Scheduled") return base + "bg-green-100 text-green-800 border-green-200";
-    if (status === "Delayed") return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
-    if (status === "Cancelled") return base + "bg-red-100 text-red-800 border-red-200";
+    if (status === "Scheduled")
+      return base + "bg-green-100 text-green-800 border-green-200";
+    if (status === "Delayed")
+      return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
+    if (status === "Cancelled")
+      return base + "bg-red-100 text-red-800 border-red-200";
     return base + "bg-gray-100 text-gray-800 border-gray-200";
   };
 
@@ -60,8 +63,9 @@ export default function FlightManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          
-          <p className="text-sm text-gray-500">Manage flights, schedules, and routes</p>
+          <p className="text-sm text-gray-500">
+            Manage flights, schedules, and routes
+          </p>
         </div>
 
         <div className="flex gap-3">
@@ -74,7 +78,6 @@ export default function FlightManagement() {
           <button className="border px-4 py-2 text-sm rounded hover:bg-gray-50">
             Ticket Price
           </button>
-          
         </div>
       </div>
 
@@ -112,31 +115,32 @@ export default function FlightManagement() {
               <option>Select date range</option>
             </select>
           </div>
-       
 
-        <div className="flex justify-end">
-        <button className="bg-gray-800 hover:bg-black text-white text-sm px-4 py-2 rounded">
-            Apply Filters
-          </button>
+          <div className="flex justify-end">
+            <button className="bg-gray-800 hover:bg-black text-white text-sm px-4 py-2 rounded">
+              Apply Filters
+            </button>
           </div>
-          </div>
-      
-    
+        </div>
+
         <div className="flex items-center gap-2 text-xs mt-3 text-gray-500">
           <span>Active Filters:</span>
-          <span className="border rounded px-2 py-1 text-xs">Status: Scheduled</span>
-          <span className="border rounded px-2 py-1 text-xs">Route: JFK - LHR</span>
+          <span className="border rounded px-2 py-1 text-xs">
+            Status: Scheduled
+          </span>
+          <span className="border rounded px-2 py-1 text-xs">
+            Route: JFK - LHR
+          </span>
           <button className="underline">Clear All</button>
         </div>
       </div>
-          
 
       {/* Table */}
       <div className="bg-white border rounded-lg overflow-hidden">
         <div className="px-4 py-3 border-b">
           <h3 className="font-medium">All Flights</h3>
           <p className="text-xs text-gray-500">Showing All Flights</p>
-          </div>
+        </div>
 
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
@@ -193,7 +197,9 @@ export default function FlightManagement() {
                       View
                     </button>
                     <button
-                      onClick={() => navigate(`/admin/flights/${flight.id}/flight-edit`)}
+                      onClick={() =>
+                        navigate(`/admin/flights/${flight.id}/flight-edit`)
+                      }
                       className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
                     >
                       Edit
@@ -202,7 +208,7 @@ export default function FlightManagement() {
                       onClick={() => handleDelete(flight.id)}
                       className="border border-red-300 text-red-600 px-3 py-1 text-xs rounded hover:bg-red-50"
                     >
-                       🗑
+                      🗑
                     </button>
                   </div>
                 </td>
@@ -213,21 +219,22 @@ export default function FlightManagement() {
 
         {/* Pagination */}
         <div className="p-4 flex justify-between text-sm text-gray-500 border-t">
-          <span>Showing 1–{flights.length} of {flights.length} results</span>
+          <span>
+            Showing 1–{flights.length} of {flights.length} results
+          </span>
           <div className="flex gap-1">
-          <button className="border px-2 py-1 rounded">{"<"}</button>
-          <button className="border px-2 py-1 rounded bg-black text-white">1</button>
-          <button className="border px-2 py-1 rounded">2</button>
-          <button className="border px-2 py-1 rounded">3</button>
-          <button className="border px-2 py-1 rounded">…</button>
-          <button className="border px-2 py-1 rounded">31</button>
-          <button className="border px-2 py-1 rounded">{">"}</button>
+            <button className="border px-2 py-1 rounded">{"<"}</button>
+            <button className="border px-2 py-1 rounded bg-black text-white">
+              1
+            </button>
+            <button className="border px-2 py-1 rounded">2</button>
+            <button className="border px-2 py-1 rounded">3</button>
+            <button className="border px-2 py-1 rounded">…</button>
+            <button className="border px-2 py-1 rounded">31</button>
+            <button className="border px-2 py-1 rounded">{">"}</button>
           </div>
         </div>
-        </div>
-          
-
-    
+      </div>
 
       {/* Currency Modal */}
       {openCurrencyModal && (

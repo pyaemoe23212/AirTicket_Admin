@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getBookingById, updateBooking } from "../../service/api";
+import { getBookingById, updateBooking } from "../../config/api";
 
 export default function BookingEdit() {
   const { bookingId } = useParams();
@@ -51,18 +51,22 @@ export default function BookingEdit() {
   };
 
   const handleInputChange = (field, value) => {
-    setBooking(prev => ({
+    setBooking((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!booking) return <div className="p-6 text-center">Booking not found</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-8">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-8"
+    >
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Edit Booking</h2>
       <p className="text-gray-600 mb-8">Booking ID: {bookingId}</p>
 
@@ -73,7 +77,9 @@ export default function BookingEdit() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name <span className="text-red-600">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Customer Name <span className="text-red-600">*</span>
+            </label>
             <input
               type="text"
               value={booking.customer}
@@ -83,7 +89,9 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address <span className="text-red-600">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address <span className="text-red-600">*</span>
+            </label>
             <input
               type="email"
               value={booking.email}
@@ -93,7 +101,9 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
             <input
               type="tel"
               value={booking.phone}
@@ -103,11 +113,15 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Number of Passengers <span className="text-red-600">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Number of Passengers <span className="text-red-600">*</span>
+            </label>
             <input
               type="number"
               value={booking.passengers}
-              onChange={(e) => handleInputChange("passengers", Number(e.target.value))}
+              onChange={(e) =>
+                handleInputChange("passengers", Number(e.target.value))
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -121,7 +135,9 @@ export default function BookingEdit() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Route</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Route
+            </label>
             <input
               type="text"
               value={booking.route}
@@ -131,7 +147,9 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Travel Date <span className="text-red-600">*</span></label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Travel Date <span className="text-red-600">*</span>
+            </label>
             <input
               type="date"
               value={booking.travelDate}
@@ -141,7 +159,9 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Travel Class</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Travel Class
+            </label>
             <select
               value={booking.travelClass}
               onChange={(e) => handleInputChange("travelClass", e.target.value)}
@@ -155,7 +175,9 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Seat Number(s)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Seat Number(s)
+            </label>
             <input
               type="text"
               value={booking.seat}
@@ -173,7 +195,9 @@ export default function BookingEdit() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Booking Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Booking Status
+            </label>
             <select
               value={booking.status}
               onChange={(e) => handleInputChange("status", e.target.value)}
@@ -186,10 +210,14 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Payment Status
+            </label>
             <select
               value={booking.paymentStatus}
-              onChange={(e) => handleInputChange("paymentStatus", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("paymentStatus", e.target.value)
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             >
               <option>Paid</option>
@@ -199,12 +227,16 @@ export default function BookingEdit() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Total Amount
+            </label>
             <input
               type="number"
               step="0.01"
               value={booking.amount}
-              onChange={(e) => handleInputChange("amount", parseFloat(e.target.value))}
+              onChange={(e) =>
+                handleInputChange("amount", parseFloat(e.target.value))
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>

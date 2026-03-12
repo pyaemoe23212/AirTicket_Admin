@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllBookings, deleteBookingById } from "../../service/api";
+import { getAllBookings, deleteBookingById } from "../../config/api";
 
 export default function BookingManagement() {
   const navigate = useNavigate();
@@ -34,7 +34,8 @@ export default function BookingManagement() {
   }, []);
 
   const handleDelete = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to delete this booking?")) return;
+    if (!window.confirm("Are you sure you want to delete this booking?"))
+      return;
 
     try {
       await deleteBookingById(bookingId);
@@ -46,14 +47,19 @@ export default function BookingManagement() {
   };
 
   const getStatusStyle = (status) => {
-    const base = "inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border ";
-    if (status === "Confirmed") return base + "bg-green-100 text-green-800 border-green-200";
-    if (status === "Pending") return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
-    if (status === "Cancelled") return base + "bg-red-100 text-red-800 border-red-200";
+    const base =
+      "inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border ";
+    if (status === "Confirmed")
+      return base + "bg-green-100 text-green-800 border-green-200";
+    if (status === "Pending")
+      return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
+    if (status === "Cancelled")
+      return base + "bg-red-100 text-red-800 border-red-200";
     return base + "bg-gray-100 text-gray-800 border-gray-200";
   };
 
-  if (loading) return <div className="p-6 text-center">Loading bookings...</div>;
+  if (loading)
+    return <div className="p-6 text-center">Loading bookings...</div>;
   if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
 
   return (
@@ -124,13 +130,17 @@ export default function BookingManagement() {
                 <td className="p-4">
                   <div className="flex gap-2">
                     <button
-                      onClick={() => navigate(`/admin/bookings/${booking.bookingId}`)}
+                      onClick={() =>
+                        navigate(`/admin/bookings/${booking.bookingId}`)
+                      }
                       className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
                     >
                       View
                     </button>
                     <button
-                      onClick={() => navigate(`/admin/bookings/${booking.bookingId}/edit`)}
+                      onClick={() =>
+                        navigate(`/admin/bookings/${booking.bookingId}/edit`)
+                      }
                       className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
                     >
                       Edit

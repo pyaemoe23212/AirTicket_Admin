@@ -1,7 +1,7 @@
 // pages/user/UserView.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserById } from "../../service/api";
+import { getUserById } from "../../config/api";
 
 export default function UserView() {
   const { id } = useParams();
@@ -35,8 +35,10 @@ export default function UserView() {
     };
   }, [id]);
 
-  if (loading) return <div className="p-6 text-center">Loading user details...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (loading)
+    return <div className="p-6 text-center">Loading user details...</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!user) return <div className="p-6 text-center">User not found</div>;
 
   return (
@@ -45,7 +47,9 @@ export default function UserView() {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold">Customer Details</h1>
-          <p className="text-sm text-gray-500">View customer information and booking history</p>
+          <p className="text-sm text-gray-500">
+            View customer information and booking history
+          </p>
         </div>
         <button
           onClick={() => navigate("/admin/users")}
@@ -66,7 +70,9 @@ export default function UserView() {
           <div className="flex gap-2 mt-2">
             <span
               className={`px-3 py-1 rounded-full text-xs font-medium ${
-                user.status === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                user.status === "Active"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
               }`}
             >
               {user.status}
@@ -84,7 +90,9 @@ export default function UserView() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-xs text-gray-600">Customer ID</p>
-            <p className="font-medium">USR-{String(user.id).padStart(3, "0")}</p>
+            <p className="font-medium">
+              USR-{String(user.id).padStart(3, "0")}
+            </p>
           </div>
           <div>
             <p className="text-xs text-gray-600">Email Address</p>
@@ -120,15 +128,21 @@ export default function UserView() {
             </div>
             <div className="p-4 border-r">
               <p className="text-xs text-gray-500">Total Spent</p>
-              <p className="text-xl font-semibold">${user.bookingStats.totalSpent}</p>
+              <p className="text-xl font-semibold">
+                ${user.bookingStats.totalSpent}
+              </p>
             </div>
             <div className="p-4 border-r">
               <p className="text-xs text-gray-500">Cancelled</p>
-              <p className="text-xl font-semibold">{user.bookingStats.cancelled}</p>
+              <p className="text-xl font-semibold">
+                {user.bookingStats.cancelled}
+              </p>
             </div>
             <div className="p-4">
               <p className="text-xs text-gray-500">Avg Booking</p>
-              <p className="text-xl font-semibold">${user.bookingStats.avgBooking}</p>
+              <p className="text-xl font-semibold">
+                ${user.bookingStats.avgBooking}
+              </p>
             </div>
           </div>
         </div>

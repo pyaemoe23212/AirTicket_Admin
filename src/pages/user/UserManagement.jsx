@@ -1,7 +1,7 @@
 // pages/user/UserManagement.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers, deleteUserById } from "../../service/api";
+import { getAllUsers, deleteUserById } from "../../config/api";
 
 export default function UserManagement() {
   const navigate = useNavigate();
@@ -32,7 +32,8 @@ export default function UserManagement() {
   }, []);
 
   const handleDelete = async (userId) => {
-    if (!window.confirm("Delete this user? This action cannot be undone.")) return;
+    if (!window.confirm("Delete this user? This action cannot be undone."))
+      return;
 
     try {
       await deleteUserById(userId);
@@ -48,20 +49,21 @@ export default function UserManagement() {
 
   return (
     <div className="flex-1 p-6 space-y-6 bg-gray-50 min-h-screen">
-
       {/* Header */}
       <div>
-        
-        <p className="text-xs text-gray-500">Manage user accounts and permissions</p>
+        <p className="text-xs text-gray-500">
+          Manage user accounts and permissions
+        </p>
       </div>
 
       {/* Filters */}
       <div className="border rounded bg-white p-4">
         <div className="grid grid-cols-5 gap-4 items-end">
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Search Bookings</label>
+            <label className="text-xs text-gray-500 mb-1 block">
+              Search Bookings
+            </label>
             <input
-              
               placeholder="Booking ID, Customer name, Email..."
               className="border rounded px-3 py-2 text-sm w-full"
             />
@@ -77,14 +79,18 @@ export default function UserManagement() {
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Last Active</label>
+            <label className="text-xs text-gray-500 mb-1 block">
+              Last Active
+            </label>
             <select className="border rounded px-3 py-2 text-sm w-full">
               <option>Select time range</option>
             </select>
           </div>
 
           <div>
-            <label className="text-xs text-gray-500 mb-1 block">Registration Date</label>
+            <label className="text-xs text-gray-500 mb-1 block">
+              Registration Date
+            </label>
             <select className="border rounded px-3 py-2 text-sm w-full">
               <option>Select date range</option>
             </select>
@@ -169,10 +175,14 @@ export default function UserManagement() {
 
         {/* Pagination */}
         <div className="flex justify-between items-center p-3 text-xs text-gray-500 border-t">
-          <span>Showing 1–{users.length} of {users.length} results</span>
+          <span>
+            Showing 1–{users.length} of {users.length} results
+          </span>
           <div className="flex gap-1">
             <button className="border px-2 py-1 rounded">&lt;</button>
-            <button className="border px-2 py-1 rounded bg-gray-800 text-white">1</button>
+            <button className="border px-2 py-1 rounded bg-gray-800 text-white">
+              1
+            </button>
             <button className="border px-2 py-1 rounded">2</button>
             <button className="border px-2 py-1 rounded">3</button>
             <button className="border px-2 py-1 rounded">...</button>

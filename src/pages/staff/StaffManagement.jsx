@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockRoles, getAllStaff, deleteStaffById } from "../../service/api";
+import { mockRoles, getAllStaff, deleteStaffById } from "../../config/api";
 
 export default function StaffManagement() {
   const navigate = useNavigate();
@@ -25,22 +25,26 @@ export default function StaffManagement() {
       }
     };
     fetchStaff();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to remove this staff member?")) return;
+    if (!window.confirm("Are you sure you want to remove this staff member?"))
+      return;
 
     try {
       await deleteStaffById(id);
-      setStaff(prev => prev.filter(s => s.id !== id));
+      setStaff((prev) => prev.filter((s) => s.id !== id));
       alert("Staff member removed successfully");
     } catch (err) {
       alert("Failed to remove staff: " + err.message);
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading staff members...</div>;
+  if (loading)
+    return <div className="p-8 text-center">Loading staff members...</div>;
   if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
 
   return (
@@ -48,16 +52,21 @@ export default function StaffManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500">Manage staff members, roles, and permissions</p>
+          <p className="text-sm text-gray-500">
+            Manage staff members, roles, and permissions
+          </p>
         </div>
-        </div>
+      </div>
       {/* Roles & Permissions */}
       <div className="border rounded bg-white p-4 mb-6">
         <h3 className="font-medium mb-3 text-sm">Roles & Permissions</h3>
 
         <div className="space-y-3">
-          {mockRoles.map(role => (
-            <div key={role.id} className="flex items-center justify-between border rounded p-3">
+          {mockRoles.map((role) => (
+            <div
+              key={role.id}
+              className="flex items-center justify-between border rounded p-3"
+            >
               <div className="flex items-center gap-3">
                 <div className="w-6 h-6 border rounded"></div>
                 <div>
@@ -80,7 +89,9 @@ export default function StaffManagement() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold">All Staff Members</h3>
-              <p className="text-sm text-gray-500">Total: {staff.length} members</p>
+              <p className="text-sm text-gray-500">
+                Total: {staff.length} members
+              </p>
             </div>
           </div>
         </div>
@@ -89,7 +100,9 @@ export default function StaffManagement() {
           <table className="w-full text-sm min-w-max">
             <thead className="bg-gray-50">
               <tr>
-                <th className="p-4 text-left w-10"><input type="checkbox" /></th>
+                <th className="p-4 text-left w-10">
+                  <input type="checkbox" />
+                </th>
                 <th className="p-4 text-left">Name</th>
                 <th className="p-4 text-left">Email</th>
                 <th className="p-4 text-left">Role</th>
@@ -100,9 +113,11 @@ export default function StaffManagement() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {staff.map(member => (
+              {staff.map((member) => (
                 <tr key={member.id} className="hover:bg-gray-50">
-                  <td className="p-4"><input type="checkbox" /></td>
+                  <td className="p-4">
+                    <input type="checkbox" />
+                  </td>
                   <td className="p-4 font-medium">{member.name}</td>
                   <td className="p-4 text-gray-600">{member.email}</td>
                   <td className="p-4">
@@ -132,8 +147,10 @@ export default function StaffManagement() {
                         View
                       </button>
                       <button
-                       onClick={() => navigate(`/admin/staff/${member.id}/edit`)}
-                       className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded"
+                        onClick={() =>
+                          navigate(`/admin/staff/${member.id}/edit`)
+                        }
+                        className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded"
                       >
                         Edit
                       </button>

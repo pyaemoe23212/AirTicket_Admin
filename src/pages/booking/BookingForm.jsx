@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createBooking } from "../../service/api";
+import { createBooking } from "../../config/api";
 
 export default function BookingForm() {
   const navigate = useNavigate();
@@ -25,7 +25,8 @@ export default function BookingForm() {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "passengers" || name === "amount" ? Number(value) : value,
+      [name]:
+        name === "passengers" || name === "amount" ? Number(value) : value,
     }));
   };
 
@@ -62,17 +63,25 @@ export default function BookingForm() {
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-8">
       <h2 className="text-2xl font-bold mb-2">New Booking</h2>
-      <p className="text-gray-600 mb-8">Create a new flight booking reservation</p>
+      <p className="text-gray-600 mb-8">
+        Create a new flight booking reservation
+      </p>
 
-      {error && <div className="mb-6 p-4 bg-red-50 text-red-700 rounded">{error}</div>}
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 text-red-700 rounded">{error}</div>
+      )}
 
       <form onSubmit={handleSubmit}>
         {/* Customer Information */}
         <section className="mb-10">
-          <h3 className="text-lg font-semibold mb-4 border-b pb-2">Customer Information</h3>
+          <h3 className="text-lg font-semibold mb-4 border-b pb-2">
+            Customer Information
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-1">Full Name *</label>
+              <label className="block text-sm font-medium mb-1">
+                Full Name *
+              </label>
               <input
                 name="customer"
                 value={formData.customer}
@@ -83,7 +92,9 @@ export default function BookingForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Email Address *</label>
+              <label className="block text-sm font-medium mb-1">
+                Email Address *
+              </label>
               <input
                 name="email"
                 type="email"
@@ -95,7 +106,9 @@ export default function BookingForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Phone Number</label>
+              <label className="block text-sm font-medium mb-1">
+                Phone Number
+              </label>
               <input
                 name="phone"
                 type="tel"
@@ -110,10 +123,14 @@ export default function BookingForm() {
 
         {/* Flight Details */}
         <section className="mb-10">
-          <h3 className="text-lg font-semibold mb-4 border-b pb-2">Flight Details</h3>
+          <h3 className="text-lg font-semibold mb-4 border-b pb-2">
+            Flight Details
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-1">From → To *</label>
+              <label className="block text-sm font-medium mb-1">
+                From → To *
+              </label>
               <input
                 name="route"
                 value={formData.route}
@@ -124,7 +141,9 @@ export default function BookingForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Flight Number</label>
+              <label className="block text-sm font-medium mb-1">
+                Flight Number
+              </label>
               <input
                 name="flightNumber"
                 value={formData.flightNumber}
@@ -134,7 +153,9 @@ export default function BookingForm() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Travel Date *</label>
+              <label className="block text-sm font-medium mb-1">
+                Travel Date *
+              </label>
               <input
                 name="travelDate"
                 type="date"
@@ -162,7 +183,9 @@ export default function BookingForm() {
           </div>
 
           <div className="mt-6">
-            <label className="block text-sm font-medium mb-1">Passengers *</label>
+            <label className="block text-sm font-medium mb-1">
+              Passengers *
+            </label>
             <input
               name="passengers"
               type="number"
@@ -177,10 +200,14 @@ export default function BookingForm() {
 
         {/* Booking Details */}
         <section className="mb-10">
-          <h3 className="text-lg font-semibold mb-4 border-b pb-2">Booking Details</h3>
+          <h3 className="text-lg font-semibold mb-4 border-b pb-2">
+            Booking Details
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-medium mb-1">Total Amount (USD) *</label>
+              <label className="block text-sm font-medium mb-1">
+                Total Amount (USD) *
+              </label>
               <input
                 name="amount"
                 type="number"
@@ -206,7 +233,9 @@ export default function BookingForm() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Payment Status</label>
+              <label className="block text-sm font-medium mb-1">
+                Payment Status
+              </label>
               <select
                 name="paymentStatus"
                 value={formData.paymentStatus}

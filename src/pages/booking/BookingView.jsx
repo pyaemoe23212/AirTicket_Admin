@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getBookingById } from "../../service/api";
+import { getBookingById } from "../../config/api";
 
 export default function BookingView() {
   const { bookingId } = useParams();
@@ -43,8 +43,10 @@ export default function BookingView() {
     );
   }
 
-  if (loading) return <div className="p-6 text-center">Loading booking details...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (loading)
+    return <div className="p-6 text-center">Loading booking details...</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!booking) return <div className="p-6 text-center">Booking not found</div>;
 
   return (
@@ -60,8 +62,8 @@ export default function BookingView() {
             booking.status === "Confirmed"
               ? "bg-green-100 text-green-800"
               : booking.status === "Pending"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-red-100 text-red-800"
+                ? "bg-yellow-100 text-yellow-800"
+                : "bg-red-100 text-red-800"
           }`}
         >
           {booking.status}
@@ -91,7 +93,10 @@ export default function BookingView() {
             <DetailItem label="Customer Name" value={booking.customer} />
             <DetailItem label="Email Address" value={booking.email} />
             <DetailItem label="Phone Number" value={booking.phone} />
-            <DetailItem label="Number of Passengers" value={booking.passengers} />
+            <DetailItem
+              label="Number of Passengers"
+              value={booking.passengers}
+            />
           </div>
         </section>
 
@@ -99,7 +104,10 @@ export default function BookingView() {
         <section>
           <h2 className="text-lg font-semibold mb-4">Payment & Status</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <DetailItem label="Total Amount" value={`${booking.currency} ${booking.amount.toFixed(2)}`} />
+            <DetailItem
+              label="Total Amount"
+              value={`${booking.currency} ${booking.amount.toFixed(2)}`}
+            />
             <DetailItem label="Payment Status" value={booking.paymentStatus} />
             <DetailItem label="Booking Status" value={booking.status} />
           </div>
@@ -109,7 +117,8 @@ export default function BookingView() {
         <section className="text-sm text-gray-600 bg-gray-50 p-5 rounded-lg">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <strong>Booked Date:</strong><br />
+              <strong>Booked Date:</strong>
+              <br />
               {booking.bookedAt}
             </div>
           </div>

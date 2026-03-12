@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getStaffById } from "../../service/api";
+import { getStaffById } from "../../config/api";
 
 export default function StaffView() {
   const { id } = useParams();
@@ -63,7 +63,9 @@ export default function StaffView() {
       <div className="px-6 py-4 border-b bg-gray-50 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Staff Details</h2>
-          <p className="text-sm text-gray-500">View staff information and activity</p>
+          <p className="text-sm text-gray-500">
+            View staff information and activity
+          </p>
         </div>
         <button
           onClick={() => navigate("/admin/staff")}
@@ -101,50 +103,67 @@ export default function StaffView() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-600">Employee ID</label>
-              <p className="mt-1 font-medium">USR-{String(staff.id).padStart(3, "0")}</p>
+              <label className="block text-sm font-medium text-gray-600">
+                Employee ID
+              </label>
+              <p className="mt-1 font-medium">
+                USR-{String(staff.id).padStart(3, "0")}
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600">Email Address</label>
+              <label className="block text-sm font-medium text-gray-600">
+                Email Address
+              </label>
               <p className="mt-1 font-medium">{staff.email}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600">Phone Number</label>
-              <p className="mt-1 font-medium">{staff.phone ?? "+1 (555) 123-4567"}</p>
+              <label className="block text-sm font-medium text-gray-600">
+                Phone Number
+              </label>
+              <p className="mt-1 font-medium">
+                {staff.phone ?? "+1 (555) 123-4567"}
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-600">Registration Date</label>
-              <p className="mt-1 font-medium">{staff.registration ?? "Jan 15, 2024"}
-                </p>
+              <label className="block text-sm font-medium text-gray-600">
+                Registration Date
+              </label>
+              <p className="mt-1 font-medium">
+                {staff.registration ?? "Jan 15, 2024"}
+              </p>
             </div>
           </div>
         </div>
 
         {/* Activity Summary */}
-      <div className="p-6">
-        <h4 className="font-semibold mb-4">Activity Summary</h4>
+        <div className="p-6">
+          <h4 className="font-semibold mb-4">Activity Summary</h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded p-4 text-center">
-          <div>
-            <p className="text-sm text-gray-500">Total Logins</p>
-            <p className="text-xl font-semibold">{(staff.totalLogins ?? 342).toLocaleString()}</p>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded p-4 text-center">
+            <div>
+              <p className="text-sm text-gray-500">Total Logins</p>
+              <p className="text-xl font-semibold">
+                {(staff.totalLogins ?? 342).toLocaleString()}
+              </p>
+            </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Actions This Month</p>
-            <p className="text-xl font-semibold">{(staff.actions ?? 1287).toLocaleString()}</p>
-          </div>
+            <div>
+              <p className="text-sm text-gray-500">Actions This Month</p>
+              <p className="text-xl font-semibold">
+                {(staff.actions ?? 1287).toLocaleString()}
+              </p>
+            </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Account Age</p>
-            <p className="text-xl font-semibold">{staff.age ?? "156 days"}</p>
+            <div>
+              <p className="text-sm text-gray-500">Account Age</p>
+              <p className="text-xl font-semibold">{staff.age ?? "156 days"}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

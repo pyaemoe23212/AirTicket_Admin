@@ -13,7 +13,7 @@ const mockBookings = [
     passengers: 1,
     seat: "12A",
     travelClass: "Economy",
-    amount: 850.00,
+    amount: 850.0,
     currency: "USD",
     status: "Confirmed",
     paymentStatus: "Paid",
@@ -33,7 +33,7 @@ const mockBookings = [
     passengers: 2,
     seat: "14C, 14D",
     travelClass: "Premium Economy",
-    amount: 1200.00,
+    amount: 1200.0,
     currency: "USD",
     status: "Pending",
     paymentStatus: "Pending",
@@ -50,7 +50,12 @@ const mockUsers = [
     registration: "Jan 15, 2024",
     lastActive: "2 hours ago",
     status: "Active",
-    bookingStats: { total: 12, totalSpent: 4580, cancelled: 2, avgBooking: 382 },
+    bookingStats: {
+      total: 12,
+      totalSpent: 4580,
+      cancelled: 2,
+      avgBooking: 382,
+    },
   },
   {
     id: 2,
@@ -70,7 +75,12 @@ const mockUsers = [
     registration: "Mar 12, 2024",
     lastActive: "1 day ago",
     status: "Active",
-    bookingStats: { total: 15, totalSpent: 7250, cancelled: 3, avgBooking: 483 },
+    bookingStats: {
+      total: 15,
+      totalSpent: 7250,
+      cancelled: 3,
+      avgBooking: 483,
+    },
   },
   {
     id: 4,
@@ -125,9 +135,27 @@ const mockUsers = [
 ];
 
 const mockRoles = [
-  { id: 1, title: "Super Admin", desc: "Full Access", count: 3, color: "bg-purple-100 text-purple-800" },
-  { id: 2, title: "Admin", desc: "High-level Access", count: 8, color: "bg-blue-100 text-blue-800" },
-  { id: 3, title: "Agent", desc: "Operational Access", count: 15, color: "bg-green-100 text-green-800" },
+  {
+    id: 1,
+    title: "Super Admin",
+    desc: "Full Access",
+    count: 3,
+    color: "bg-purple-100 text-purple-800",
+  },
+  {
+    id: 2,
+    title: "Admin",
+    desc: "High-level Access",
+    count: 8,
+    color: "bg-blue-100 text-blue-800",
+  },
+  {
+    id: 3,
+    title: "Agent",
+    desc: "Operational Access",
+    count: 15,
+    color: "bg-green-100 text-green-800",
+  },
 ];
 
 const mockStaff = [
@@ -146,9 +174,9 @@ const mockStaff = [
       totalLogins: 342,
       actionsThisMonth: 1287,
       accountAge: 156,
-       },
-     },
-  
+    },
+  },
+
   {
     id: 2,
     name: "Michael Chen",
@@ -216,12 +244,13 @@ const mockFlights = [
     totalCapacity: 220,
     availableSeats: 180,
     bookedSeats: 38,
-    basePrice: 850.00,
+    basePrice: 850.0,
     currency: "$",
     classType: "Economy",
     gate: "B12",
     terminal: "Terminal 4",
-    notes: "Standard international flight. Check-in opens 3 hours before departure.",
+    notes:
+      "Standard international flight. Check-in opens 3 hours before departure.",
     createdDate: "2025-12-10",
     lastModified: "2026-01-20",
     modifiedBy: "Admin User",
@@ -242,7 +271,7 @@ const mockFlights = [
     totalCapacity: 280,
     availableSeats: 245,
     bookedSeats: 105,
-    basePrice: 1200.00,
+    basePrice: 1200.0,
     currency: "$",
     classType: "Premium Economy",
     gate: "A5",
@@ -268,7 +297,7 @@ const mockFlights = [
     totalCapacity: 200,
     availableSeats: 168,
     bookedSeats: 144,
-    basePrice: 920.00,
+    basePrice: 920.0,
     currency: "$",
     classType: "Business",
     gate: "C8",
@@ -294,7 +323,7 @@ const mockFlights = [
     totalCapacity: 240,
     availableSeats: 195,
     bookedSeats: 144,
-    basePrice: 780.00,
+    basePrice: 780.0,
     currency: "$",
     classType: "Business",
     gate: "C8",
@@ -320,7 +349,7 @@ const mockFlights = [
     totalCapacity: 180,
     availableSeats: 142,
     bookedSeats: 144,
-    basePrice: 995.00,
+    basePrice: 995.0,
     currency: "$",
     classType: "Business",
     gate: "C8",
@@ -346,7 +375,7 @@ const mockFlights = [
     totalCapacity: 260,
     availableSeats: 210,
     bookedSeats: 144,
-    basePrice: 975.00,
+    basePrice: 975.0,
     currency: "$",
     classType: "Business",
     gate: "C8",
@@ -372,7 +401,7 @@ const mockFlights = [
     totalCapacity: 190,
     availableSeats: 159,
     bookedSeats: 144,
-    basePrice: 835.00,
+    basePrice: 835.0,
     currency: "$",
     classType: "Business",
     gate: "C8",
@@ -398,7 +427,7 @@ const mockFlights = [
     totalCapacity: 210,
     availableSeats: 172,
     bookedSeats: 144,
-    basePrice: 795.00,
+    basePrice: 795.0,
     currency: "$",
     classType: "Business",
     gate: "C8",
@@ -409,6 +438,57 @@ const mockFlights = [
     modifiedBy: "Admin User",
   },
 ];
+
+import axios from "axios";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_AUTH_PREFIX =
+  import.meta.env.VITE_API_AUTH_PREFIX || `${API_BASE_URL}/auth/admin`;
+
+export const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem("authToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const loginUser = async (email, password) => {
+  const formData = new URLSearchParams();
+  formData.append("username", email);
+  formData.append("password", password);
+
+  const response = await apiClient.post(`${API_AUTH_PREFIX}/token`, formData, {
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+
+  return {
+    token: response.data.access_token || response.data.token,
+    user: response.data.admin || response.data.user,
+  };
+};
+
+export const createStaffUser = async (name, email, password) => {
+  const response = await apiClient.post(`${API_AUTH_PREFIX}/signup`, {
+    name,
+    email,
+    password,
+    role: "STAFF",
+  });
+
+  return {
+    token: response.data.access_token || response.data.token,
+    user: response.data.admin || response.data.user,
+  };
+};
+export default API_BASE_URL;
 
 export const createBooking = async (bookingData) => {
   return new Promise((resolve) => {
@@ -441,7 +521,7 @@ export const getAllBookings = () => {
 export const getBookingById = (bookingId) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const booking = mockBookings.find(b => b.bookingId === bookingId);
+      const booking = mockBookings.find((b) => b.bookingId === bookingId);
       if (booking) resolve(booking);
       else reject(new Error("Booking not found"));
     }, 300);
@@ -451,7 +531,7 @@ export const getBookingById = (bookingId) => {
 export const deleteBookingById = (bookingId) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const index = mockBookings.findIndex(b => b.bookingId === bookingId);
+      const index = mockBookings.findIndex((b) => b.bookingId === bookingId);
       if (index !== -1) {
         mockBookings.splice(index, 1);
         resolve({ success: true, message: "Booking deleted" });
@@ -465,7 +545,7 @@ export const deleteBookingById = (bookingId) => {
 export const updateBooking = (bookingId, updates) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      const index = mockBookings.findIndex(b => b.bookingId === bookingId);
+      const index = mockBookings.findIndex((b) => b.bookingId === bookingId);
       if (index !== -1) {
         mockBookings[index] = { ...mockBookings[index], ...updates };
         resolve(mockBookings[index]);
@@ -544,14 +624,17 @@ export const getStaffById = (id) => {
   });
 };
 
-
 export const createStaff = (staffData) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const newStaff = {
         id: mockStaff.length + 1,
         ...staffData,
-        registration: new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+        registration: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
         lastActive: "Just now",
         status: "Active",
       };

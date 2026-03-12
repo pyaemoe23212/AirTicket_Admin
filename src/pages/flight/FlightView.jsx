@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getFlightById } from "../../service/api";
+import { getFlightById } from "../../config/api";
 
 export default function FlightView() {
   const { flightId } = useParams();
@@ -43,8 +43,10 @@ export default function FlightView() {
     );
   }
 
-  if (loading) return <div className="p-6 text-center">Loading flight details...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (loading)
+    return <div className="p-6 text-center">Loading flight details...</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!flight) return <div className="p-6 text-center">Flight not found</div>;
 
   return (
@@ -68,7 +70,10 @@ export default function FlightView() {
             <DetailItem label="Airline" value={flight.airline} />
             <DetailItem label="Status" value={flight.status} />
             <DetailItem label="Origin Airport" value={flight.originAirport} />
-            <DetailItem label="Destination Airport" value={flight.destinationAirport} />
+            <DetailItem
+              label="Destination Airport"
+              value={flight.destinationAirport}
+            />
             <DetailItem
               label="Departure"
               value={`${flight.departureDate} ${flight.departureTime}`}

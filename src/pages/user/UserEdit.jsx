@@ -1,7 +1,7 @@
 // pages/user/UserEdit.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserById, updateUser } from "../../service/api";
+import { getUserById, updateUser } from "../../config/api";
 
 export default function UserEdit() {
   const { id } = useParams();
@@ -77,7 +77,9 @@ export default function UserEdit() {
                 onChange={(e) => {
                   const parts = user.name.split(" ");
                   parts[0] = e.target.value;
-                  handleChange({ target: { name: "name", value: parts.join(" ") } });
+                  handleChange({
+                    target: { name: "name", value: parts.join(" ") },
+                  });
                 }}
                 className="border rounded px-3 py-2 w-full"
               />
@@ -89,7 +91,9 @@ export default function UserEdit() {
                 onChange={(e) => {
                   const parts = user.name.split(" ");
                   parts[1] = e.target.value;
-                  handleChange({ target: { name: "name", value: parts.join(" ") } });
+                  handleChange({
+                    target: { name: "name", value: parts.join(" ") },
+                  });
                 }}
                 className="border rounded px-3 py-2 w-full"
               />

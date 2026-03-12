@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getFlightById, updateFlight } from "../../service/api";
+import { getFlightById, updateFlight } from "../../config/api";
 
 export default function FlightEdit() {
   const { flightId } = useParams();
@@ -51,18 +51,22 @@ export default function FlightEdit() {
   };
 
   const handleInputChange = (field, value) => {
-    setFlight(prev => ({
+    setFlight((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   if (loading) return <div className="p-6 text-center">Loading...</div>;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (error)
+    return <div className="p-6 text-center text-red-600">Error: {error}</div>;
   if (!flight) return <div className="p-6 text-center">Flight not found</div>;
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-8">
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm p-8"
+    >
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Edit Flight</h2>
       <p className="text-gray-600 mb-8">Flight ID: {flightId}</p>
 
@@ -120,7 +124,9 @@ export default function FlightEdit() {
             <input
               type="text"
               value={flight.originAirport}
-              onChange={(e) => handleInputChange("originAirport", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("originAirport", e.target.value)
+              }
               placeholder="e.g. JFK"
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
@@ -133,7 +139,9 @@ export default function FlightEdit() {
             <input
               type="text"
               value={flight.destinationAirport}
-              onChange={(e) => handleInputChange("destinationAirport", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("destinationAirport", e.target.value)
+              }
               placeholder="e.g. LHR"
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
@@ -146,7 +154,9 @@ export default function FlightEdit() {
             <input
               type="date"
               value={flight.departureDate}
-              onChange={(e) => handleInputChange("departureDate", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("departureDate", e.target.value)
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -158,7 +168,9 @@ export default function FlightEdit() {
             <input
               type="time"
               value={flight.departureTime}
-              onChange={(e) => handleInputChange("departureTime", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("departureTime", e.target.value)
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -206,7 +218,9 @@ export default function FlightEdit() {
             <input
               type="text"
               value={flight.aircraftType}
-              onChange={(e) => handleInputChange("aircraftType", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("aircraftType", e.target.value)
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -226,7 +240,9 @@ export default function FlightEdit() {
             <input
               type="number"
               value={flight.totalCapacity}
-              onChange={(e) => handleInputChange("totalCapacity", parseInt(e.target.value))}
+              onChange={(e) =>
+                handleInputChange("totalCapacity", parseInt(e.target.value))
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -263,7 +279,9 @@ export default function FlightEdit() {
               type="number"
               step="0.01"
               value={flight.basePrice}
-              onChange={(e) => handleInputChange("basePrice", parseFloat(e.target.value))}
+              onChange={(e) =>
+                handleInputChange("basePrice", parseFloat(e.target.value))
+              }
               className="w-full px-4 py-2 border border-gray-300 rounded-md"
             />
           </div>
