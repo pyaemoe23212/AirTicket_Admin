@@ -51,9 +51,8 @@ export default function UserManagement() {
     <div className="flex-1 p-6 space-y-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div>
-        <p className="text-xs text-gray-500">
-          Manage user accounts and permissions
-        </p>
+        
+        <p className="text-xs text-gray-500">Manage user accounts and permissions</p>
       </div>
 
       {/* Filters */}
@@ -118,14 +117,14 @@ export default function UserManagement() {
         </div>
 
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 border-b">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="p-3 text-left">Name</th>
-              <th className="p-3 text-left">Email</th>
-              <th className="p-3 text-left">Registration Date</th>
-              <th className="p-3 text-left">Last Active</th>
-              <th className="p-3 text-left">Status</th>
-              <th className="p-3 text-left">Actions</th>
+              <th className="p-4 text-left">Name</th>
+              <th className="p-4 text-left">Email</th>
+              <th className="p-4 text-left">Registration Date</th>
+              <th className="p-4 text-left">Last Active</th>
+              <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
 
