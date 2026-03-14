@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockRoles, getAllStaff, deleteStaffById } from "../../config/api";
+import { mockRoles, getAllStaff, deleteStaffById, activateStaff, deactivateStaff } from "../../config/api";
 
 export default function StaffManagement() {
   const navigate = useNavigate();
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [actionInProgress, setActionInProgress] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -14,6 +15,7 @@ export default function StaffManagement() {
       try {
         const data = await getAllStaff();
         if (mounted) {
+          console.log("Fetched data",data)
           setStaff(data);
           setLoading(false);
         }
@@ -34,12 +36,38 @@ export default function StaffManagement() {
     if (!window.confirm("Are you sure you want to remove this staff member?"))
       return;
 
+    setActionInProgress(id);
     try {
       await deleteStaffById(id);
       setStaff((prev) => prev.filter((s) => s.id !== id));
       alert("Staff member removed successfully");
     } catch (err) {
       alert("Failed to remove staff: " + err.message);
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
+  const handleToggleStatus = async (member) => {
+    setActionInProgress(member.id);
+    try {
+      const isActive = member.status === "Active";
+      const response = isActive 
+        ? await deactivateStaff(member.id) 
+        : await activateStaff(member.id);
+      
+      setStaff((prev) =>
+        prev.map((s) =>
+          s.id === member.id 
+            ? { ...s, status: response.status || (isActive ? "Inactive" : "Active") }
+            : s
+        )
+      );
+      alert(`Staff member ${isActive ? "deactivated" : "activated"} successfully`);
+    } catch (err) {
+      alert("Failed to update status: " + err.message);
+    } finally {
+      setActionInProgress(null);
     }
   };
 
@@ -57,29 +85,35 @@ export default function StaffManagement() {
           </p>
         </div>
       </div>
+
       {/* Roles & Permissions */}
       <div className="border rounded bg-white p-4 mb-6">
         <h3 className="font-medium mb-3 text-sm">Roles & Permissions</h3>
 
         <div className="space-y-3">
-          {mockRoles.map((role) => (
-            <div
-              key={role.id}
-              className="flex items-center justify-between border rounded p-3"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 border rounded"></div>
-                <div>
-                  <p className="text-sm font-medium">{role.title}</p>
-                  <p className="text-xs text-gray-500">{role.desc}</p>
+          {Array.from(
+            new Set(staff.map((s) => s.role))
+          ).map((role) => {
+            const count = staff.filter((s) => s.role === role).length;
+            return (
+              <div
+                key={role}
+                className="flex items-center justify-between border rounded p-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-6 h-6 border rounded"></div>
+                  <div>
+                    <p className="text-sm font-medium">{role}</p>
+                    <p className="text-xs text-gray-500">{role}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm">{count}</p>
+                  <p className="text-xs text-gray-500">members</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm">{role.count}</p>
-                <p className="text-xs text-gray-500">members</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -128,35 +162,38 @@ export default function StaffManagement() {
                   <td className="p-4 text-gray-600">{member.registration}</td>
                   <td className="p-4 text-gray-600">{member.lastActive}</td>
                   <td className="p-4">
-                    <span
-                      className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                    <button
+                      onClick={() => handleToggleStatus(member)}
+                      disabled={actionInProgress === member.id}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-full cursor-pointer disabled:opacity-50 ${
                         member.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-green-100 text-green-700 hover:bg-green-200"
+                          : "bg-red-100 text-red-700 hover:bg-red-200"
                       }`}
                     >
                       {member.status}
-                    </span>
+                    </button>
                   </td>
                   <td className="p-4">
                     <div className="flex gap-2">
                       <button
                         onClick={() => navigate(`/admin/staff/${member.id}`)}
-                        className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded"
+                        disabled={actionInProgress === member.id}
+                        className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded disabled:opacity-50"
                       >
                         View
                       </button>
                       <button
-                        onClick={() =>
-                          navigate(`/admin/staff/${member.id}/edit`)
-                        }
-                        className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded"
+                        onClick={() => navigate(`/admin/staff/${member.id}/edit`)}
+                        disabled={actionInProgress === member.id}
+                        className="border border-gray-300 hover:bg-gray-100 px-3 py-1 text-xs rounded disabled:opacity-50"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(member.id)}
-                        className="border border-gray-300 hover:bg-gray-100 p-2 rounded"
+                        disabled={actionInProgress === member.id}
+                        className="border border-gray-300 hover:bg-gray-100 p-2 rounded disabled:opacity-50"
                         title="Delete"
                       >
                         🗑️

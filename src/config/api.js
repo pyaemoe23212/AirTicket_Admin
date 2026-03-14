@@ -475,20 +475,6 @@ export const loginUser = async (email, password) => {
   };
 };
 
-export const createStaffUser = async (name, email, password) => {
-  const response = await apiClient.post(`${API_AUTH_PREFIX}/signup`, {
-    name,
-    email,
-    password,
-    role: "STAFF",
-  });
-
-  return {
-    token: response.data.access_token || response.data.token,
-    user: response.data.admin || response.data.user,
-  };
-};
-export default API_BASE_URL;
 
 export const createBooking = async (bookingData) => {
   return new Promise((resolve) => {
@@ -608,68 +594,49 @@ export const deleteUserById = (userId) => {
 // Staff CRUD Operations
 // =====================
 
-export const getAllStaff = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(mockStaff), 300);
+export const createStaffUser = async (name, email, password) => {
+  const response = await apiClient.post(`${API_AUTH_PREFIX}/signup`, {
+    name,
+    email,
+    password,
+    role: "STAFF",
   });
+
+  return {
+    token: response.data.access_token || response.data.token,
+    user: response.data.admin || response.data.user,
+  };
+};
+export default API_BASE_URL;
+
+export const getAllStaff = async (params = {}) => {
+  const response = await apiClient.get("/admin/staff", { params });
+  return response.data?.data ?? response.data;
 };
 
-export const getStaffById = (id) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const staff = mockStaff.find((s) => s.id === Number(id));
-      if (staff) resolve(staff);
-      else reject(new Error("Staff member not found"));
-    }, 250);
-  });
+export const getStaffById = async (staffId) => {
+  const response = await apiClient.get("/admin/staff/" + staffId);
+  return response.data?.data ?? response.data;
 };
 
-export const createStaff = (staffData) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newStaff = {
-        id: mockStaff.length + 1,
-        ...staffData,
-        registration: new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
-        lastActive: "Just now",
-        status: "Active",
-      };
-      mockStaff.push(newStaff);
-      resolve(newStaff);
-    }, 300);
-  });
+export const updateStaff = async (staffId, staffData) => {
+  const response = await apiClient.patch("/admin/staff/" + staffId, staffData);
+  return response.data?.data ?? response.data;
 };
 
-export const updateStaff = (id, staffData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockStaff.findIndex((s) => s.id === Number(id));
-      if (index !== -1) {
-        mockStaff[index] = { ...mockStaff[index], ...staffData };
-        resolve(mockStaff[index]);
-      } else {
-        reject(new Error("Staff member not found"));
-      }
-    }, 300);
-  });
+export const deleteStaffById = async (staffId) => {
+  const response = await apiClient.delete("/admin/staff/" + staffId);
+  return response.data?.data ?? response.data;
 };
 
-export const deleteStaffById = (id) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockStaff.findIndex((s) => s.id === Number(id));
-      if (index !== -1) {
-        mockStaff.splice(index, 1);
-        resolve({ success: true, message: "Staff member removed" });
-      } else {
-        reject(new Error("Staff member not found"));
-      }
-    }, 400);
-  });
+export const deactivateStaff = async (staffId) => {
+  const response = await apiClient.patch("/admin/staff/" + staffId + "/deactivate");
+  return response.data?.data ?? response.data;
+};
+
+export const activateStaff = async (staffId) => {
+  const response = await apiClient.patch("/admin/staff/" + staffId + "/activate");
+  return response.data?.data ?? response.data;
 };
 
 // =====================

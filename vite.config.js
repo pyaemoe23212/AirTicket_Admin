@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://guy-electronics-balloon-angle.trycloudflare.com",
+        target: "https://festival-interpreted-screensavers-each.trycloudflare.com/api",
         changeOrigin: true,
         secure: true,
       },
