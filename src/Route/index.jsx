@@ -1,0 +1,122 @@
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import AdminLayout from "../layout/AdminLayout";
+import RequireAuth from "../auth/RequireAuth";
+import RequireRole from "../auth/RequireRole";
+import SignIn from "../pages/auth/SignIn";
+import BookingManagement from "../pages/booking/BookingManagement";
+import BookingForm from "../pages/booking/BookingForm";
+import BookingView from "../pages/booking/BookingView";
+import BookingEdit from "../pages/booking/BookingEdit";
+import FlightManagement from "../pages/flight/FlightManagement";
+import FlightForm from "../pages/flight/FlightForm";
+import FlightView from "../pages/flight/FlightView";
+import FlightEdit from "../pages/flight/FlightEdit";
+import UserManagement from "../pages/user/UserManagement";
+import UserView from "../pages/user/UserView";
+import UserEdit from "../pages/user/UserEdit";
+import StaffManagement from "../pages/staff/StaffManagement";
+import StaffForm from "../pages/staff/StaffForm";
+import StaffView from "../pages/staff/StaffView";
+import StaffEdit from "../pages/staff/StaffEdit";
+import FlightOverride from "../pages/flight/FlightOverride";
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Navigate to="/signin" replace />,
+  },
+  {
+    path: "/signin",
+    element: <SignIn />,
+  },
+  {
+    path: "/admin",
+    element: (
+      <RequireAuth>
+        <AdminLayout />
+      </RequireAuth>
+    ),
+    children: [
+      {
+        path: "bookings",
+        element: <BookingManagement />,
+      },
+      {
+        path: "bookings/bookingform",
+        element: <BookingForm />,
+      },
+      {
+        path: "bookings/:bookingId",
+        element: <BookingView />,
+      },
+      {
+        path: "bookings/:bookingId/edit",
+        element: <BookingEdit />,
+      },
+      {
+        path: "flights",
+        element: <FlightManagement />,
+      },
+      {
+        path: "flights/:flightId",
+        element: <FlightView />,
+      },
+      {
+        path: "flights/:flightId/flight-edit",
+        element: <FlightForm />,
+      },
+      {
+        path: "flights/override/:overrideId/edit",
+        element: <FlightEdit />,
+      },
+      {
+        path: "overrides",
+        element: <FlightOverride />,
+      },
+      {
+        path: "users",
+        element: <UserManagement />,
+      },
+      {
+        path: "users/:id",
+        element: <UserView />,
+      },
+      {
+        path: "users/:id/edit",
+        element: <UserEdit />,
+      },
+      {
+        path: "staff",
+        element: (
+          <RequireRole role="SUPER_ADMIN">
+            <StaffManagement />
+          </RequireRole>
+        ),
+      },
+      {
+        path: "staff/staff-form",
+        element: (
+          <RequireRole role="SUPER_ADMIN">
+            <StaffForm />
+          </RequireRole>
+        ),
+      },
+      {
+        path: "staff/:id",
+        element: (
+          <RequireRole role="SUPER_ADMIN">
+            <StaffView />
+          </RequireRole>
+        ),
+      },
+      {
+        path: "staff/:id/edit",
+        element: (
+          <RequireRole role="SUPER_ADMIN">
+            <StaffEdit />
+          </RequireRole>
+        ),
+      },
+    ],
+  },
+]);
