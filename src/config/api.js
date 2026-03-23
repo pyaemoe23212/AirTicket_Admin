@@ -229,7 +229,7 @@ const mockStaff = [
 
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const API_AUTH_PREFIX =
   import.meta.env.VITE_API_AUTH_PREFIX || `${API_BASE_URL}/auth/admin`;
 
@@ -529,6 +529,21 @@ export const searchRoundTripFlights = async (
       error.response?.data?.message || "Failed to search round-trip flights"
     );
   }
+};
+
+// Get current exchange rate
+export const getExchangeRate = async () => {
+  const response = await apiClient.get("/admin/exchange-rate");
+  const data = response.data?.data ?? response.data;
+  return data;
+};
+
+// Update exchange rate
+export const updateExchangeRate = async (usdToMmkRate) => {
+  const response = await apiClient.put("/admin/exchange-rate", {
+    usd_to_mmk: String(usdToMmkRate)
+  });
+  return response.data?.data ?? response.data;
 };
 
 // =====================

@@ -1,17 +1,29 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   searchFlights,
   searchRoundTripFlights,
   getAllFlightOverrides,
+  getExchangeRate,
+  updateExchangeRate
 } from "../../config/api";
 
 export default function FlightManagement() {
   const navigate = useNavigate();
+  const { hasRole } = useAuth(); 
+  const isAdmin = hasRole("ADMIN") || hasRole("SUPER_ADMIN");  // Check if admin
+  // =========================
+  // Modal State
+  // =========================
   const [openCurrencyModal, setOpenCurrencyModal] = useState(false);
-  const [eurRate, setEurRate] = useState("1.12");
+  const [usdToMmkRate, setUsdToMmkRate] = useState("");
+  const [currentRate, setCurrentRate] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Search-related state
+  // =========================
+  // Search State
+  // =========================
   const [tripType, setTripType] = useState("oneWay");
   const [searchParams, setSearchParams] = useState({
     origin: "",
@@ -19,13 +31,29 @@ export default function FlightManagement() {
     departureDate: "",
     returnDate: "",
   });
+
   const [searchResults, setSearchResults] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState(null);
 
+  useEffect(() => {
+    const fetchRate = async () => {
+      try {
+        const rateData = await getExchangeRate();
+        setCurrentRate(rateData?.usd_to_mmk || 0);
+        setLastUpdated(rateData?.created_at);
+        setUsdToMmkRate(String(rateData?.usd_to_mmk || ""));
+      } catch (err) {
+        console.error("Failed to fetch exchange rate:", err);
+      }
+    };
+    fetchRate();
+  }, []);
 
-  // Transform API response to displayable format
+  // =========================
+  // Helpers
+  // =========================
   const transformFlightData = (flights) => {
     console.log("Raw API Response:", flights);
 
@@ -39,6 +67,7 @@ export default function FlightManagement() {
           flight_snapshot: {
             bundle_key: f.bundle_key,
             adults: f.adults,
+
             outbound: {
               airline: f.outbound.airline,
               airline_code: f.outbound.airline_code,
@@ -50,6 +79,7 @@ export default function FlightManagement() {
               arrival_time: f.outbound.arrival_time,
               duration_minutes: f.outbound.duration_minutes,
             },
+
             inbound: {
               airline: f.inbound.airline,
               airline_code: f.inbound.airline_code,
@@ -61,6 +91,7 @@ export default function FlightManagement() {
               arrival_time: f.inbound.arrival_time,
               duration_minutes: f.inbound.duration_minutes,
             },
+
             base_price_usd: f.base_price_usd,
             final_price_usd: f.final_price_usd,
             final_price_mmk: f.final_price_mmk,
@@ -112,11 +143,21 @@ export default function FlightManagement() {
 
   const formatDuration = (minutes) => {
     if (!minutes) return "N/A";
+
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
+
     return `${hours}h ${mins}m`;
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleString();
+  };
+
+  // =========================
+  // Handlers
+  // =========================
   const handleSearch = async () => {
     if (
       !searchParams.origin ||
@@ -135,11 +176,11 @@ export default function FlightManagement() {
     }
 
     setIsSearching(true);
-
     setSearchError(null);
 
     try {
       let results;
+
       if (tripType === "oneWay") {
         results = await searchFlights(
           searchParams.origin,
@@ -157,6 +198,7 @@ export default function FlightManagement() {
 
       // Transform the API response
       const transformedResults = transformFlightData(results);
+
       setSearchResults(transformedResults);
       console.log("Transformed Search Results:", transformedResults);
       setHasSearched(true);
@@ -174,6 +216,7 @@ export default function FlightManagement() {
       departureDate: "",
       returnDate: "",
     });
+
     setSearchResults([]);
     setHasSearched(false);
     setSearchError(null);
@@ -189,61 +232,71 @@ export default function FlightManagement() {
 
   const handleTripTypeChange = (type) => {
     setTripType(type);
+
     if (type === "oneWay") {
       handleInputChange("returnDate", "");
     }
   };
 
-  // Add to state
-  const [overrideFlights, setOverrideFlights] = useState([]);
-  const [loadingOverrides, setLoadingOverrides] = useState(false);
-
-  // New function to fetch overrides
-  const fetchOverrides = async () => {
-    setLoadingOverrides(true);
+  const handleUpdateRate = async () => {
     try {
-      const overrides = await getAllFlightOverrides();
-      setOverrideFlights(overrides);
+      await updateExchangeRate(usdToMmkRate);
+
+      // Recalculate prices with new rate
+      const updatedResults = searchResults.map(flight => ({
+        ...flight,
+        final_price_mmk: flight.final_price_usd * parseFloat(usdToMmkRate),
+        flight_snapshot: {
+          ...flight.flight_snapshot,
+          final_price_mmk: flight.final_price_usd * parseFloat(usdToMmkRate),
+        },
+      }));
+
+      setSearchResults(updatedResults);
+      setOpenCurrencyModal(false);
+      // Optional: Show success message
     } catch (err) {
-      console.error("Failed to fetch overrides:", err);
-    } finally {
-      setLoadingOverrides(false);
+      console.error("Failed to update exchange rate:", err);
     }
   };
 
-  // Call when tab switches to overrides
-
-
+  // =========================
+  // Render
+  // =========================
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* =========================
+          Header
+      ========================= */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-gray-500">
-            Search and manage flights
-          </p>
+          <p className="text-sm text-gray-500">Search and manage flights</p>
         </div>
 
         <div className="flex gap-3">
-          <button
-            onClick={() => navigate("/admin/overrides")}
-            className="border px-4 py-2 text-sm rounded hover:bg-gray-50 font-medium"
-          >
-            View Overrides
-          </button>
-          <button
-            onClick={() => setOpenCurrencyModal(true)}
-            className="border px-4 py-2 text-sm rounded hover:bg-gray-50"
-          >
-            Currency Exchange
-          </button>
-          <button className="border px-4 py-2 text-sm rounded hover:bg-gray-50">
-            Ticket Price
-          </button>
-        </div>
+          {isAdmin && (
+            <>
+              <button
+                onClick={() => navigate("/admin/overrides")}
+                className="border px-4 py-2 text-sm rounded hover:bg-gray-50 font-medium"
+              >
+                View Overrides
+              </button>
+
+              <button
+                onClick={() => setOpenCurrencyModal(true)}
+                className="border px-4 py-2 text-sm rounded hover:bg-gray-50"
+              >
+                Currency Exchange
+              </button>
+            </>
+          )}
+          </div>
       </div>
 
-      {/* Search Form */}
+      {/* =========================
+          Search Form
+      ========================= */}
       <div className="bg-white border rounded-lg p-4">
         {/* Trip Type Toggle */}
         <div className="mb-4 flex gap-4">
@@ -258,6 +311,7 @@ export default function FlightManagement() {
             />
             <span className="text-sm">One-way</span>
           </label>
+
           <label className="flex items-center gap-2">
             <input
               type="radio"
@@ -280,6 +334,7 @@ export default function FlightManagement() {
 
         {/* Search Inputs */}
         <div className="grid grid-cols-5 gap-4 items-end">
+          {/* Origin */}
           <div>
             <label className="text-xs text-gray-500">Origin</label>
             <input
@@ -291,6 +346,7 @@ export default function FlightManagement() {
             />
           </div>
 
+          {/* Destination */}
           <div>
             <label className="text-xs text-gray-500">Destination</label>
             <input
@@ -298,20 +354,26 @@ export default function FlightManagement() {
               className="border rounded px-3 py-2 text-sm w-full"
               placeholder="e.g., BKK, SIN"
               value={searchParams.destination}
-              onChange={(e) => handleInputChange("destination", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("destination", e.target.value)
+              }
             />
           </div>
 
+          {/* Departure Date */}
           <div>
             <label className="text-sm text-gray-500">Departure Date</label>
             <input
               type="date"
               className="border rounded px-3 py-2 text-sm w-full"
               value={searchParams.departureDate}
-              onChange={(e) => handleInputChange("departureDate", e.target.value)}
+              onChange={(e) =>
+                handleInputChange("departureDate", e.target.value)
+              }
             />
           </div>
 
+          {/* Return Date */}
           {tripType === "roundTrip" && (
             <div>
               <label className="text-sm text-gray-500">Return Date</label>
@@ -319,11 +381,14 @@ export default function FlightManagement() {
                 type="date"
                 className="border rounded px-3 py-2 text-sm w-full"
                 value={searchParams.returnDate}
-                onChange={(e) => handleInputChange("returnDate", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("returnDate", e.target.value)
+                }
               />
             </div>
           )}
 
+          {/* Actions */}
           <div className="flex gap-2 justify-end">
             <button
               onClick={handleClearAll}
@@ -331,6 +396,7 @@ export default function FlightManagement() {
             >
               Clear All
             </button>
+
             <button
               onClick={handleSearch}
               disabled={isSearching}
@@ -342,18 +408,24 @@ export default function FlightManagement() {
         </div>
       </div>
 
-      {/* Results Table */}
+      {/* =========================
+          Results Table
+      ========================= */}
       {hasSearched && (
         <div className="bg-white border rounded-lg overflow-hidden">
+          {/* Results Header */}
           <div className="px-4 py-3 border-b">
             <h3 className="font-medium">Search Results</h3>
             <p className="text-xs text-gray-500">
               {searchResults.length > 0
-                ? `Showing ${searchResults.length} flight${searchResults.length !== 1 ? "s" : ""}`
+                ? `Showing ${searchResults.length} flight${
+                    searchResults.length !== 1 ? "s" : ""
+                  }`
                 : "No flights found matching your search criteria"}
             </p>
           </div>
 
+          {/* Empty State / Table */}
           {searchResults.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
               No flights found. Try adjusting your search criteria.
@@ -383,68 +455,96 @@ export default function FlightManagement() {
                     <td className="p-4">
                       <input type="checkbox" />
                     </td>
+
                     <td className="p-4 text-xs">
                       <span className="font-medium">{flight.type}</span>
                     </td>
+
                     <td className="p-4 font-medium">
                       {flight.type === "ROUND_TRIP"
                         ? `${flight.flight_snapshot.outbound.flight_number} / ${flight.flight_snapshot.inbound.flight_number}`
                         : flight.flight_snapshot.flight_number}
                     </td>
+
                     <td className="p-4">
                       {flight.type === "ROUND_TRIP"
                         ? flight.flight_snapshot.outbound.airline
                         : flight.flight_snapshot.airline}
+
                       <div className="text-xs text-gray-500">
                         {flight.type === "ROUND_TRIP"
                           ? flight.flight_snapshot.outbound.airline_code
                           : flight.flight_snapshot.airline_code}
                       </div>
                     </td>
+
                     <td className="p-4">
                       {flight.type === "ROUND_TRIP"
                         ? `${flight.flight_snapshot.outbound.route} / ${flight.flight_snapshot.inbound.route}`
                         : flight.flight_snapshot.route}
                     </td>
+
                     <td className="p-4">
                       {flight.type === "ROUND_TRIP"
                         ? flight.flight_snapshot.outbound.departure_time
                         : flight.flight_snapshot.departure_time}
                     </td>
+
                     <td className="p-4">
                       {flight.type === "ROUND_TRIP"
                         ? flight.flight_snapshot.inbound.arrival_time
                         : flight.flight_snapshot.arrival_time}
                     </td>
+
                     <td className="p-4">
                       {flight.type === "ROUND_TRIP"
-                        ? `${formatDuration(flight.flight_snapshot.outbound.duration_minutes)} / ${formatDuration(flight.flight_snapshot.inbound.duration_minutes)}`
-                        : formatDuration(flight.flight_snapshot.duration_minutes)}
+                        ? `${formatDuration(
+                            flight.flight_snapshot.outbound.duration_minutes
+                          )} / ${formatDuration(
+                            flight.flight_snapshot.inbound.duration_minutes
+                          )}`
+                        : formatDuration(
+                            flight.flight_snapshot.duration_minutes
+                          )}
                     </td>
+
                     <td className="p-4">{flight.adults}</td>
-                    <td className="p-4 font-medium">${flight.flight_snapshot.base_price_usd}</td>
+
+                    <td className="p-4 font-medium">
+                      ${flight.flight_snapshot.base_price_usd}
+                    </td>
+
                     <td className="p-4 font-medium">${flight.final_price_usd}</td>
+
                     <td className="p-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => navigate(`/admin/flights/${flight.bundle_key}`)}
+                          onClick={() =>
+                            navigate(`/admin/flights/${flight.bundle_key}`)
+                          }
                           className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
                         >
                           View
                         </button>
-                        <button
-                        onClick={() => {
-                          navigate(`/admin/flights/${flight.bundle_key}/flight-edit`, {
-                            state: { 
-                              flightData: flight,
-                              mode: "create"  // Goes to FlightForm for CREATE
-                            }
-                          });
-                        }}
-                        className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
-                      >
-                        Edit
-                      </button>
+
+                        {isAdmin && (
+                          <button
+                            onClick={() => {
+                              navigate(
+                                `/admin/flights/${flight.bundle_key}/flight-edit`,
+                                {
+                                  state: {
+                                    flightData: flight,
+                                    mode: "create",
+                                  },
+                                }
+                              );
+                            }}
+                            className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
+                          >
+                            Edit
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -455,46 +555,80 @@ export default function FlightManagement() {
 
           {/* Pagination */}
           <div className="p-4 flex justify-between text-sm text-gray-500 border-t">
-            <span>
-              Showing {searchResults.length} results
-            </span>
+            <span>Showing {searchResults.length} results</span>
           </div>
         </div>
       )}
 
-      {/* Currency Modal */}
+      {/* =========================
+          Currency Modal
+      ========================= */}
       {openCurrencyModal && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
           onClick={() => setOpenCurrencyModal(false)}
         >
           <div
-            className="bg-white w-full max-w-lg rounded-lg p-6"
+            className="bg-white w-full max-w-2xl rounded-lg p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Currency Exchange</h2>
-              <button onClick={() => setOpenCurrencyModal(false)}>×</button>
+            {/* Modal Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Currency Exchange Rate</h2>
+              <button onClick={() => setOpenCurrencyModal(false)} className="text-2xl">×</button>
             </div>
 
-            <p>EUR to USD rate:</p>
-            <input
-              type="number"
-              step="0.01"
-              value={eurRate}
-              onChange={(e) => setEurRate(e.target.value)}
-              className="border p-2 w-32 my-2"
-            />
+            {/* Rate Table */}
+            <div className="mb-6 overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 border">
+                    <th className="border p-3 text-left font-semibold">Currency</th>
+                    <th className="border p-3 text-left font-semibold">Current Rate (to MMK)</th>
+                    <th className="border p-3 text-left font-semibold">New Rate</th>
+                    <th className="border p-3 text-left font-semibold">Last Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border hover:bg-gray-50">
+                    <td className="border p-3">USD</td>
+                    <td className="border p-3 font-medium">{currentRate || 0}</td>
+                    <td className="border p-3">
+                      <input
+                        type="text"
+                        value={usdToMmkRate}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*\.?\d*$/.test(value)) {
+                            setUsdToMmkRate(value);
+                          }
+                        }}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter new rate"
+                      />
+                    </td>
+                    <td className="border p-3 text-sm text-gray-600">
+                      {formatDate(lastUpdated)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setOpenCurrencyModal(false)}
-                className="px-4 py-2 border rounded"
+                className="px-4 py-2 border rounded hover:bg-gray-50"
               >
                 Cancel
               </button>
-              <button className="px-4 py-2 bg-black text-white rounded">
-                Update
+
+              <button 
+                onClick={handleUpdateRate}
+                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+              >
+                Update Rate
               </button>
             </div>
           </div>
