@@ -1,12 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllBookings, deleteBookingById } from "../../config/api";
+import {
+  getAllBookings,
+  deleteBooking,
+  updateBookingStatus,
+  updateBookingPaymentStatus,
+  uploadBookingTicket,
+} from "../../config/api";
+
+const BOOKING_STATUS_OPTIONS = [
+  "PROCESSING",
+  "CONFIRMED",
+  "COMPLETED",
+  "CANCELLED",
+];
+
+const PAYMENT_STATUS_OPTIONS = ["PENDING", "PAID", "FAILED"];
 
 export default function BookingManagement() {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
+  const [ticketDrafts, setTicketDrafts] = useState({});
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const adminEmail = "admin@example.com";
 
   useEffect(() => {
     let mounted = true;
@@ -15,12 +34,12 @@ export default function BookingManagement() {
       try {
         const data = await getAllBookings();
         if (mounted) {
-          setBookings(data);
+          setBookings(Array.isArray(data) ? data : []);
           setLoading(false);
         }
       } catch (err) {
         if (mounted) {
-          setError(err.message);
+          setError(err.message || "Failed to fetch bookings");
           setLoading(false);
         }
       }
@@ -33,38 +52,163 @@ export default function BookingManagement() {
     };
   }, []);
 
-  const handleDelete = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to delete this booking?"))
+  const handleBookingStatusChange = async (bookingId, newStatus) => {
+    try {
+      setUpdatingBookingId(bookingId);
+      await updateBookingStatus(bookingId, newStatus, adminEmail);
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_id === bookingId ? { ...b, status: newStatus } : b
+        )
+      );
+    } catch (err) {
+      alert("Failed to update booking status: " + (err.message || "Unknown error"));
+    } finally {
+      setUpdatingBookingId(null);
+    }
+  };
+
+  const handlePaymentStatusChange = async (bookingId, newPaymentStatus) => {
+    try {
+      setUpdatingBookingId(bookingId);
+      await updateBookingPaymentStatus(bookingId, newPaymentStatus, adminEmail);
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_id === bookingId
+            ? { ...b, payment_status: newPaymentStatus }
+            : b
+        )
+      );
+    } catch (err) {
+      alert("Failed to update payment status: " + (err.message || "Unknown error"));
+    } finally {
+      setUpdatingBookingId(null);
+    }
+  };
+
+  const handleTicketInputChange = (bookingId, value) => {
+    setTicketDrafts((prev) => ({ ...prev, [bookingId]: value }));
+  };
+
+  const handleUploadTicket = async (booking) => {
+    const bookingId = booking.booking_id;
+    const ticketUrl = (ticketDrafts[bookingId] || "").trim();
+
+    if (!ticketUrl) {
+      alert("Please enter a ticket URL");
       return;
+    }
 
     try {
-      await deleteBookingById(bookingId);
-      setBookings((prev) => prev.filter((b) => b.bookingId !== bookingId));
-      alert("Booking deleted successfully");
+      setUpdatingBookingId(bookingId);
+      await uploadBookingTicket(bookingId, ticketUrl, adminEmail, "CONFIRMED");
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_id === bookingId
+            ? {
+                ...b,
+                ticket_file_url: ticketUrl,
+                status: "CONFIRMED",
+              }
+            : b
+        )
+      );
+
+      setTicketDrafts((prev) => ({ ...prev, [bookingId]: "" }));
     } catch (err) {
-      alert("Failed to delete booking: " + err.message);
+      alert("Failed to upload ticket: " + (err.message || "Unknown error"));
+    } finally {
+      setUpdatingBookingId(null);
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId) => {
+    const ok = window.confirm("Are you sure you want to delete this booking?");
+    if (!ok) return;
+
+    try {
+      setUpdatingBookingId(bookingId);
+      await deleteBooking(bookingId);
+      setBookings((prev) => prev.filter((b) => b.booking_id !== bookingId));
+    } catch (err) {
+      alert("Failed to delete booking: " + (err.message || "Unknown error"));
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
   const getStatusStyle = (status) => {
     const base =
-      "inline-block px-2.5 py-0.5 text-xs font-medium rounded-full border ";
-    if (status === "Confirmed")
-      return base + "bg-green-100 text-green-800 border-green-200";
-    if (status === "Pending")
-      return base + "bg-yellow-100 text-yellow-800 border-yellow-200";
-    if (status === "Cancelled")
-      return base + "bg-red-100 text-red-800 border-red-200";
-    return base + "bg-gray-100 text-gray-800 border-gray-200";
+      "inline-block px-2.5 py-1 text-xs font-medium rounded-full border bg-white";
+
+    switch ((status || "").toUpperCase()) {
+      case "PROCESSING":
+        return base + " bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "CONFIRMED":
+        return base + " bg-green-100 text-green-800 border-green-200";
+      case "COMPLETED":
+        return base + " bg-blue-100 text-blue-800 border-blue-200";
+      case "CANCELLED":
+        return base + " bg-red-100 text-red-800 border-red-200";
+      default:
+        return base + " bg-gray-100 text-gray-800 border-gray-200";
+    }
   };
 
-  if (loading)
+  const getPaymentStatusStyle = (status) => {
+    const base =
+      "inline-block px-2.5 py-1 text-xs font-medium rounded-full border bg-white";
+
+    switch ((status || "").toUpperCase()) {
+      case "PAID":
+        return base + " bg-green-100 text-green-800 border-green-200";
+      case "PENDING":
+        return base + " bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "FAILED":
+        return base + " bg-red-100 text-red-800 border-red-200";
+      default:
+        return base + " bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const extractTravelDate = (booking) => {
+    try {
+      const departureTime =
+        booking.flight_snapshot?.outbound?.departure_time ||
+        booking.flight_snapshot?.departure_time;
+      if (!departureTime) return "-";
+
+      return new Date(departureTime).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "-";
+    }
+  };
+
+  const extractRoute = (booking) => {
+    return (
+      booking.flight_snapshot?.outbound?.route ||
+      booking.flight_snapshot?.route ||
+      "-"
+    );
+  };
+
+  if (loading) {
     return <div className="p-6 text-center">Loading bookings...</div>;
-  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-600">Error: {error}</div>;
+  }
 
   return (
     <div className="space-y-6">
-      {/* Filters */}
       <div className="bg-white border rounded-lg p-6">
         <div className="grid grid-cols-5 gap-4">
           <input
@@ -73,9 +217,9 @@ export default function BookingManagement() {
           />
           <select className="border rounded px-3 py-2 text-sm">
             <option>All Status</option>
-            <option>Confirmed</option>
-            <option>Pending</option>
-            <option>Cancelled</option>
+            {BOOKING_STATUS_OPTIONS.map((status) => (
+              <option key={status}>{status}</option>
+            ))}
           </select>
           <select className="border rounded px-3 py-2 text-sm">
             <option>All Routes</option>
@@ -92,7 +236,6 @@ export default function BookingManagement() {
         </button>
       </div>
 
-      {/* Table */}
       <div className="bg-white border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
@@ -105,56 +248,133 @@ export default function BookingManagement() {
               <th className="p-4 text-left">Travel Date</th>
               <th className="p-4 text-left">Amount</th>
               <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-left">Payment Status</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {bookings.map((booking) => (
-              <tr key={booking.bookingId} className="hover:bg-gray-50">
-                <td className="p-4">
-                  <input type="checkbox" />
-                </td>
-                <td className="p-4 font-medium">{booking.bookingId}</td>
-                <td className="p-4">{booking.customer}</td>
-                <td className="p-4 text-gray-600">{booking.email}</td>
-                <td className="p-4">{booking.route}</td>
-                <td className="p-4">{booking.travelDate}</td>
-                <td className="p-4 font-medium">
-                  {booking.currency} {booking.amount.toFixed(2)}
-                </td>
-                <td className="p-4">
-                  <span className={getStatusStyle(booking.status)}>
-                    {booking.status}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        navigate(`/admin/bookings/${booking.bookingId}`)
+            {bookings.map((booking) => {
+              const isUpdating = updatingBookingId === booking.booking_id;
+              const paymentStatus = (booking.payment_status || "").toUpperCase();
+              const bookingStatus = (booking.status || "").toUpperCase();
+              const hasTicketUrl = Boolean(
+              booking.ticket_file_url || booking.ticket_url || booking.ticketUrl
+              );
+
+              const showTicketUpload =
+              paymentStatus === "PAID" &&
+              bookingStatus === "PROCESSING" &&
+              !hasTicketUrl;
+
+
+              return (
+                <tr key={booking.booking_id} className="hover:bg-gray-50 align-top">
+                  <td className="p-4">
+                    <input type="checkbox" />
+                  </td>
+                  <td className="p-4 font-medium">{booking.booking_id}</td>
+                  <td className="p-4">-</td>
+                  <td className="p-4 text-gray-600">-</td>
+                  <td className="p-4">{extractRoute(booking)}</td>
+                  <td className="p-4">{extractTravelDate(booking)}</td>
+                  <td className="p-4 font-medium">
+                    USD {booking.final_price_usd?.toFixed(2) || "0.00"}
+                  </td>
+
+                  <td className="p-4">
+                    <select
+                      disabled={isUpdating}
+                      value={booking.status || "PROCESSING"}
+                      onChange={(e) =>
+                        handleBookingStatusChange(booking.booking_id, e.target.value)
                       }
-                      className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
+                      className={getStatusStyle(booking.status)}
                     >
-                      View
-                    </button>
-                    <button
-                      onClick={() =>
-                        navigate(`/admin/bookings/${booking.bookingId}/edit`)
+                      {BOOKING_STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  <td className="p-4">
+                    <select
+                      disabled={isUpdating}
+                      value={booking.payment_status || "PENDING"}
+                      onChange={(e) =>
+                        handlePaymentStatusChange(booking.booking_id, e.target.value)
                       }
-                      className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
+                      className={getPaymentStatusStyle(booking.payment_status)}
                     >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(booking.bookingId)}
-                      className="border border-red-300 text-red-600 px-3 py-1 text-xs rounded hover:bg-red-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {PAYMENT_STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+
+                    {showTicketUpload && (
+                      <div className="mt-2 flex gap-2">
+                        <input
+                          type="url"
+                          value={ticketDrafts[booking.booking_id] || ""}
+                          onChange={(e) =>
+                            handleTicketInputChange(booking.booking_id, e.target.value)
+                          }
+                          placeholder="Enter ticket URL"
+                          className="border rounded px-2 py-1 text-xs w-56"
+                        />
+                        <button
+                          disabled={isUpdating}
+                          onClick={() => handleUploadTicket(booking)}
+                          className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                        >
+                          Upload
+                        </button>
+                      </div>
+                    )}
+
+                    {booking.ticket_file_url && (
+                      <a
+                        href={booking.ticket_file_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-2 inline-block text-xs text-blue-600 hover:underline"
+                      >
+                        View Ticket
+                      </a>
+                    )}
+                  </td>
+
+                  <td className="p-4">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => navigate(`/admin/bookings/${booking.booking_id}`)}
+                        className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() =>
+                          navigate(`/admin/bookings/${booking.booking_id}/edit`)
+                        }
+                        className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        disabled={isUpdating}
+                        onClick={() => handleDeleteBooking(booking.booking_id)}
+                        className="border px-3 py-1 text-xs rounded hover:bg-red-100 text-red-600 disabled:opacity-60"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

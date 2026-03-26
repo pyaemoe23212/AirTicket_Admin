@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getBookingById, updateBooking } from "../../config/api";
+// import { getBookingById, updateBooking } from "../../config/api";
 
 export default function BookingEdit() {
   const { bookingId } = useParams();
@@ -10,45 +10,45 @@ export default function BookingEdit() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
+  // useEffect(() => {
+  //   let mounted = true;
 
-    const fetchBooking = async () => {
-      try {
-        const data = await getBookingById(bookingId);
-        if (mounted) {
-          setBooking(data);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(err.message);
-          setLoading(false);
-        }
-      }
-    };
+  //   const fetchBooking = async () => {
+  //     try {
+  //       const data = await getBookingById(bookingId);
+  //       if (mounted) {
+  //         setBooking(data);
+  //         setLoading(false);
+  //       }
+  //     } catch (err) {
+  //       if (mounted) {
+  //         setError(err.message);
+  //         setLoading(false);
+  //       }
+  //     }
+  //   };
 
-    fetchBooking();
+  //   fetchBooking();
 
-    return () => {
-      mounted = false;
-    };
-  }, [bookingId]);
+  //   return () => {
+  //     mounted = false;
+  //   };
+  // }, [bookingId]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setSaving(true);
 
-    try {
-      await updateBooking(bookingId, booking);
-      alert("Booking updated successfully");
-      navigate("/admin/bookings");
-    } catch (err) {
-      alert("Failed to update booking: " + err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+  //   try {
+  //     await updateBooking(bookingId, booking);
+  //     alert("Booking updated successfully");
+  //     navigate("/admin/bookings");
+  //   } catch (err) {
+  //     alert("Failed to update booking: " + err.message);
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
 
   const handleInputChange = (field, value) => {
     setBooking((prev) => ({

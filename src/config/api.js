@@ -286,48 +286,63 @@ export const createBooking = async (bookingData) => {
   });
 };
 
-export const getAllBookings = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve([...mockBookings]), 400);
-  });
+export const getAllBookings = async (params = {}) => {
+  const response = await apiClient.get("/admin/bookings", { params });
+  return response.data?.data ?? response.data;
 };
 
-export const getBookingById = (bookingId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const booking = mockBookings.find((b) => b.bookingId === bookingId);
-      if (booking) resolve(booking);
-      else reject(new Error("Booking not found"));
-    }, 300);
-  });
+export const getBookingById = async (bookingId) => {
+  const response = await apiClient.get(`/admin/bookings/${bookingId}`);
+  return response.data?.data ?? response.data;
 };
 
-export const deleteBookingById = (bookingId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockBookings.findIndex((b) => b.bookingId === bookingId);
-      if (index !== -1) {
-        mockBookings.splice(index, 1);
-        resolve({ success: true, message: "Booking deleted" });
-      } else {
-        reject(new Error("Booking not found"));
-      }
-    }, 400);
-  });
+export const deleteBooking = async (bookingId) => {
+  const response = await apiClient.delete(`/admin/bookings/${bookingId}`);
+  return response.data?.data ?? response.data;
 };
 
-export const updateBooking = (bookingId, updates) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockBookings.findIndex((b) => b.bookingId === bookingId);
-      if (index !== -1) {
-        mockBookings[index] = { ...mockBookings[index], ...updates };
-        resolve(mockBookings[index]);
-      } else {
-        reject(new Error("Booking not found"));
-      }
-    }, 400);
+export const updateBookingStatus = async (bookingId, newStatus, updatedBy) => {
+  const response = await apiClient.put(`/admin/bookings/${bookingId}`, {
+    booking_id: bookingId,
+    status: newStatus, 
+    updated_by: updatedBy,
   });
+  return response.data?.data ?? response.data;
+};
+
+export const updateBookingPaymentStatus = async (
+  bookingId,
+  paymentStatus,
+  updatedBy
+) => {
+  const response = await apiClient.put(
+    `/admin/bookings/${bookingId}/payment-status`,
+    {
+      booking_id: bookingId,
+      payment_status: paymentStatus,
+      updated_by: updatedBy,
+    }
+  );
+  return response.data?.data ?? response.data;
+};
+
+export const uploadBookingTicket = async (
+  bookingId,
+  ticketUrl,
+  uploadedBy,
+  status = "CONFIRMED"
+) => {
+  const response = await apiClient.put(
+    `/admin/bookings/${bookingId}/upload-ticket`,
+    {
+      booking_id: bookingId,
+      ticket_file_url: ticketUrl,
+      ticket_uploaded_at: new Date().toISOString(),
+      status,
+      uploaded_by: uploadedBy,
+    }
+  );
+  return response.data?.data ?? response.data;
 };
 
 // ────────────────────────────────────────────────
