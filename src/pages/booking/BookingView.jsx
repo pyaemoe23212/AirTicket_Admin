@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getBookingById, deleteBooking } from "../../config/api";
+import { getBookingById, deleteBooking, getSecureTicket } from "../../config/api";
 
 export default function BookingView() {
   const { bookingId } = useParams();
@@ -8,6 +8,7 @@ export default function BookingView() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -45,6 +46,26 @@ export default function BookingView() {
     }
   };
 
+  const handleDownloadTicket = async () => {
+    try {
+      setDownloading(true);
+      const blob = await getSecureTicket(bookingId);
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = booking.original_ticket_name || booking.original_name || `ticket-${booking.booking_code}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      alert("Failed to download ticket: " + (err.message || "Unknown error"));
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   function DetailItem({ label, value }) {
     return (
       <div>
@@ -54,6 +75,31 @@ export default function BookingView() {
     );
   }
 
+    const extractTravelDate = (booking) => {
+    try {
+      const departureTime =
+        booking.flight_snapshot?.outbound?.departure_time ||
+        booking.flight_snapshot?.departure_time;
+      if (!departureTime) return "-";
+
+      return new Date(departureTime).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "-";
+    }
+  };
+
+    const extractRoute = (booking) => {
+    return (
+      booking.flight_snapshot?.outbound?.route ||
+      booking.flight_snapshot?.route ||
+      "-"
+    );
+  };
+
   if (loading)
     return <div className="p-6 text-center">Loading booking details...</div>;
   if (error)
@@ -62,6 +108,7 @@ export default function BookingView() {
 
   const fs = booking.flight_snapshot || {};
   const isRoundTrip = booking.type === "ROUND_TRIP";
+  console.log("Booking Data:", booking);
 
   return (
     <div className="max-w-5xl mx-auto bg-white rounded-lg shadow-sm">
@@ -90,6 +137,7 @@ export default function BookingView() {
           <h2 className="text-lg font-semibold mb-4">Booking Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <DetailItem label="Booking Code" value={booking.booking_code} />
+            <DetailItem label="Booking ID" value={booking.booking_id} />
             <DetailItem label="Trip Type" value={booking.type === "ROUND_TRIP" ? "Round Trip" : "One Way"} />
             <DetailItem label="Number of Adults" value={booking.adults} />
             <DetailItem label="Base Price (USD)" value={`$${fs.base_price_usd?.toFixed(2)}`} />
@@ -106,14 +154,14 @@ export default function BookingView() {
               label="Airline & Flight"
               value={`${fs.outbound?.airline_code || fs.airline_code} ${fs.outbound?.flight_number || fs.flight_number}`}
             />
-            <DetailItem label="Route" value={fs.outbound?.route} />
+            <DetailItem label="Route" value={extractRoute(booking)} />
             <DetailItem
               label="Departure"
-              value={fs.outbound?.departure_time ? new Date(fs.outbound.departure_time).toLocaleString() : "—"}
+              value={extractTravelDate(booking) !== "-" ? new Date(fs.outbound?.departure_time || fs.departure_time).toLocaleString() : "—"}
             />
             <DetailItem
               label="Arrival"
-              value={fs.outbound?.arrival_time ? new Date(fs.outbound.arrival_time).toLocaleString() : "—"}
+              value={extractTravelDate(booking) !== "-" ? new Date(fs.outbound?.arrival_time || fs.arrival_time).toLocaleString() : "—"}
             />
             <DetailItem label="Duration" value={`${fs.outbound?.duration_minutes} minutes`} />
             <DetailItem label="Airline Name" value={fs.outbound?.airline} />
@@ -179,6 +227,23 @@ export default function BookingView() {
             />
           </div>
         </section>
+
+        {/* Uploaded Ticket File */}
+            <section>
+              <h2 className="text-lg font-semibold mb-4">Ticket File</h2>
+              <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-blue-800">Download to see the uploaded file.</p>
+                  <button
+                    disabled={downloading}
+                    onClick={handleDownloadTicket}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm disabled:opacity-60"
+                  >
+                    {downloading ? "Downloading..." : "⬇️ Download"}
+                  </button>
+                </div>
+              </div>
+            </section>
       </div>
 
       {/* Buttons */}

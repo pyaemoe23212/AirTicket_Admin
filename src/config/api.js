@@ -328,21 +328,57 @@ export const updateBookingPaymentStatus = async (
 
 export const uploadBookingTicket = async (
   bookingId,
-  ticketUrl,
+  file,
   uploadedBy,
   status = "CONFIRMED"
 ) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("booking_id", bookingId);
+  formData.append("status", status);
+  formData.append("uploaded_by", uploadedBy);
+
   const response = await apiClient.put(
     `/admin/bookings/${bookingId}/upload-ticket`,
+    formData,
     {
-      booking_id: bookingId,
-      ticket_file_url: ticketUrl,
-      ticket_uploaded_at: new Date().toISOString(),
-      status,
-      uploaded_by: uploadedBy,
+      headers: { "Content-Type": "multipart/form-data" },
     }
   );
   return response.data?.data ?? response.data;
+};
+
+
+// Replace booking ticket file using booking_id
+export const replaceBookingTicketFile = async (bookingId, file, updatedBy) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("updated_by", updatedBy);
+
+  const response = await apiClient.put(
+    `/files/replace/${bookingId}`,  // Remove /api prefix
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  return response.data?.data ?? response.data;
+};
+
+// Delete booking ticket file using booking_id
+export const deleteBookingTicketFile = async (bookingId, deletedBy) => {
+  const response = await apiClient.delete(`/files/${bookingId}`, {  // Remove /api prefix
+    data: { deleted_by: deletedBy },
+  });
+  return response.data?.data ?? response.data;
+};
+
+// Get a secure ticket download
+export const getSecureTicket = async (bookingId) => {
+  const response = await apiClient.get(`/secure/tickets/${bookingId}`, {
+    responseType: "blob",
+  });
+  return response.data;
 };
 
 // ────────────────────────────────────────────────

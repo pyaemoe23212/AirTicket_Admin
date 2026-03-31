@@ -6,6 +6,7 @@ import {
   updateBookingStatus,
   updateBookingPaymentStatus,
   uploadBookingTicket,
+  getSecureTicket,
 } from "../../config/api";
 
 const BOOKING_STATUS_OPTIONS = [
@@ -20,7 +21,7 @@ const PAYMENT_STATUS_OPTIONS = ["PENDING", "PAID", "FAILED"];
 export default function BookingManagement() {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState([]);
-  const [ticketDrafts, setTicketDrafts] = useState({});
+  const [ticketFiles, setTicketFiles] = useState({});
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -88,36 +89,42 @@ export default function BookingManagement() {
     }
   };
 
-  const handleTicketInputChange = (bookingId, value) => {
-    setTicketDrafts((prev) => ({ ...prev, [bookingId]: value }));
+  const handleTicketInputChange = (bookingId, file) => {
+    setTicketFiles((prev) => ({ ...prev, [bookingId]: file }));
   };
 
   const handleUploadTicket = async (booking) => {
     const bookingId = booking.booking_id;
-    const ticketUrl = (ticketDrafts[bookingId] || "").trim();
+    const file = ticketFiles[bookingId];
 
-    if (!ticketUrl) {
-      alert("Please enter a ticket URL");
+    if (!file) {
+      alert("Please select a ticket file");
       return;
     }
 
     try {
       setUpdatingBookingId(bookingId);
-      await uploadBookingTicket(bookingId, ticketUrl, adminEmail, "CONFIRMED");
+      const response = await uploadBookingTicket(
+        bookingId,
+        file,
+        adminEmail,
+        "CONFIRMED"
+      );
 
       setBookings((prev) =>
         prev.map((b) =>
           b.booking_id === bookingId
             ? {
                 ...b,
-                ticket_file_url: ticketUrl,
+                ticket_file_url: response.file_url || response.ticket_file_url,
+                original_ticket_name: response.original_name,
                 status: "CONFIRMED",
               }
             : b
         )
       );
 
-      setTicketDrafts((prev) => ({ ...prev, [bookingId]: "" }));
+      setTicketFiles((prev) => ({ ...prev, [bookingId]: null }));
     } catch (err) {
       alert("Failed to upload ticket: " + (err.message || "Unknown error"));
     } finally {
@@ -135,6 +142,26 @@ export default function BookingManagement() {
       setBookings((prev) => prev.filter((b) => b.booking_id !== bookingId));
     } catch (err) {
       alert("Failed to delete booking: " + (err.message || "Unknown error"));
+    } finally {
+      setUpdatingBookingId(null);
+    }
+  };
+
+  const handleDownloadTicket = async (booking) => {
+    try {
+      setUpdatingBookingId(booking.booking_id);
+      const blob = await getSecureTicket(booking.booking_id);
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = booking.original_ticket_name || `ticket-${booking.booking_id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      alert("Failed to download ticket: " + (err.message || "Unknown error"));
     } finally {
       setUpdatingBookingId(null);
     }
@@ -176,27 +203,55 @@ export default function BookingManagement() {
 
   const extractTravelDate = (booking) => {
     try {
-      const departureTime =
-        booking.flight_snapshot?.outbound?.departure_time ||
-        booking.flight_snapshot?.departure_time;
-      if (!departureTime) return "-";
+      // Check for round trip (outbound/inbound)
+      const outboundTime = booking.flight_snapshot?.outbound?.departure_time;
+      const inboundTime = booking.flight_snapshot?.inbound?.departure_time;
 
-      return new Date(departureTime).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
+      if (outboundTime) {
+        const outboundDate = new Date(outboundTime).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+
+        if (inboundTime) {
+          const inboundDate = new Date(inboundTime).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+          return `${outboundDate} - ${inboundDate}`;
+        }
+
+        return outboundDate;
+      }
+
+      // Fallback for one-way flights
+      const departureTime = booking.flight_snapshot?.departure_time;
+      if (departureTime) {
+        return new Date(departureTime).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      return "-";
     } catch {
       return "-";
     }
   };
 
   const extractRoute = (booking) => {
-    return (
-      booking.flight_snapshot?.outbound?.route ||
-      booking.flight_snapshot?.route ||
-      "-"
-    );
+    const outboundRoute = booking.flight_snapshot?.outbound?.route;
+    const inboundRoute = booking.flight_snapshot?.inbound?.route;
+    const onewayRoute = booking.flight_snapshot?.route;
+
+    if (inboundRoute) {
+      return `${outboundRoute} / ${inboundRoute}`;
+    }
+
+    return onewayRoute || "-";
   };
 
   if (loading) {
@@ -273,12 +328,12 @@ export default function BookingManagement() {
                     <input type="checkbox" />
                   </td>
                   <td className="p-4 font-medium">{booking.booking_code}</td>
-                  <td className="p-4">-</td>
-                  <td className="p-4 text-gray-600">-</td>
+                  <td className="p-4">{booking.user.email}</td>
+                  <td className="p-4 text-gray-600">{booking.user.name}</td>
                   <td className="p-4">{extractRoute(booking)}</td>
                   <td className="p-4">{extractTravelDate(booking)}</td>
                   <td className="p-4 font-medium">
-                    USD {booking.final_price_usd?.toFixed(2) || "0.00"}
+                     {booking.final_price_usd?.toFixed(2) || "-"}$
                   </td>
 
                   <td className="p-4">
@@ -317,16 +372,16 @@ export default function BookingManagement() {
                     {showTicketUpload && (
                       <div className="mt-2 flex gap-2">
                         <input
-                          type="url"
-                          value={ticketDrafts[booking.booking_id] || ""}
+                          type="file"
+                          accept=".pdf,.doc,.docx,.zip"
                           onChange={(e) =>
-                            handleTicketInputChange(booking.booking_id, e.target.value)
+                            handleTicketInputChange(booking.booking_id, e.target.files?.[0])
                           }
-                          placeholder="Enter ticket URL"
+                          placeholder="Select ticket file"
                           className="border rounded px-2 py-1 text-xs w-56"
                         />
                         <button
-                          disabled={isUpdating}
+                          disabled={isUpdating || !ticketFiles[booking.booking_id]}
                           onClick={() => handleUploadTicket(booking)}
                           className="px-2 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
                         >
@@ -336,14 +391,23 @@ export default function BookingManagement() {
                     )}
 
                     {booking.ticket_file_url && (
-                      <a
-                        href={booking.ticket_file_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-2 inline-block text-xs text-blue-600 hover:underline"
-                      >
-                        View Ticket
-                      </a>
+                      <div className="mt-2 flex items-center gap-2">
+                        <a
+                          href={booking.ticket_file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          📄 {booking.original_ticket_name || "View Ticket"}
+                        </a>
+                        <button
+                          disabled={isUpdating}
+                          onClick={() => handleDownloadTicket(booking)}
+                          className="px-2 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-60"
+                        >
+                          ⬇️ Download
+                        </button>
+                      </div>
                     )}
                   </td>
 
