@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getAllFlightOverrides,
-  deleteFlightOverride,
+  disableFlightOverride,
 } from "../../config/api";
 
 export default function FlightOverride() {
@@ -27,14 +27,17 @@ export default function FlightOverride() {
     fetchOverrides();
   }, []);
 
-  const handleDeleteOverride = async (overrideId) => {
-    if (window.confirm("Are you sure you want to delete this override?")) {
+  const handleDisableOverride = async (overrideId) => {
+    if (window.confirm("Are you sure you want to disable this override?")) {
       try {
-        await deleteFlightOverride(overrideId);
-        setOverrideFlights(prev => prev.filter(o => o.id !== overrideId));
-        alert("Override deleted successfully");
+        const updatedOverride = await disableFlightOverride(overrideId);
+        // Update the override in the list instead of removing it
+        setOverrideFlights(prev =>
+          prev.map(o => (o.id === overrideId ? { ...o, is_active: false } : o))
+        );
+        alert("Override disabled successfully");
       } catch (err) {
-        alert("Failed to delete override: " + err.message);
+        alert("Failed to disable override: " + err.message);
       }
     }
   };
@@ -88,7 +91,8 @@ export default function FlightOverride() {
                 <th className="p-4 text-left">Flight No.</th>
                 <th className="p-4 text-left">Departure Date</th>
                 <th className="p-4 text-left">Override Price (USD)</th>
-                <th className="p-4 text-left">Currency</th>
+                <th className="p-4 text-left">Expires At</th>
+                <th className="p-4 text-left">Status</th>
                 <th className="p-4 text-left">Actions</th>
               </tr>
             </thead>
@@ -99,29 +103,27 @@ export default function FlightOverride() {
                   <td className="p-4 font-medium">{override.flight_number}</td>
                   <td className="p-4">{override.departure_date}</td>
                   <td className="p-4 font-medium">${override.override_price_usd}</td>
-                  <td className="p-4">{override.currency || "USD"}</td>
+                  <td className="p-4 text-sm">
+                    {new Date(override.expires_at).toLocaleString()}
+                  </td>
                   <td className="p-4">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          navigate(`/admin/flights/override/${override.id}/edit`, {
-                            state: {
-                              overrideData: override,
-                              mode: "update",
-                            },
-                          });
-                        }}
-                        className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteOverride(override.id)}
-                        className="border border-red-300 px-3 py-1 text-xs rounded text-red-600 hover:bg-red-50"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${
+                        override.is_active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
+                      {override.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <button
+                      onClick={() => handleDisableOverride(override.id)}
+                      className="border border-red-300 px-3 py-1 text-xs rounded text-red-600 hover:bg-red-50"
+                    >
+                      Disable
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -4,9 +4,7 @@ import RequireAuth from "../auth/RequireAuth";
 import RequireRole from "../auth/RequireRole";
 import SignIn from "../pages/auth/SignIn";
 import BookingManagement from "../pages/booking/BookingManagement";
-import BookingForm from "../pages/booking/BookingForm";
 import BookingView from "../pages/booking/BookingView";
-import BookingEdit from "../pages/booking/BookingEdit";
 import FlightManagement from "../pages/flight/FlightManagement";
 import FlightForm from "../pages/flight/FlightForm";
 import FlightView from "../pages/flight/FlightView";
@@ -42,16 +40,8 @@ export const router = createBrowserRouter([
         element: <BookingManagement />,
       },
       {
-        path: "bookings/bookingform",
-        element: <BookingForm />,
-      },
-      {
         path: "bookings/:bookingId",
         element: <BookingView />,
-      },
-      {
-        path: "bookings/:bookingId/edit",
-        element: <BookingEdit />,
       },
       {
         path: "flights",

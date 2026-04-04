@@ -1,46 +1,3 @@
-const mockBookings = [
-  {
-    id: "BK-10245",
-    bookingId: "BK-10245",
-    customer: "John Smith",
-    email: "john.smith@email.com",
-    phone: "+1 (555) 123-4567",
-    route: "JFK → LHR",
-    flightNumber: "AA 101",
-    travelDate: "2026-01-15",
-    departureTime: "09:30",
-    arrivalTime: "21:45",
-    passengers: 1,
-    seat: "12A",
-    travelClass: "Economy",
-    amount: 850.0,
-    currency: "USD",
-    status: "Confirmed",
-    paymentStatus: "Paid",
-    bookedAt: "2025-12-20",
-  },
-  {
-    id: "BK-10246",
-    bookingId: "BK-10246",
-    customer: "Sarah Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+44 20 7946 0958",
-    route: "LAX → NRT",
-    flightNumber: "UA 875",
-    travelDate: "2026-01-16",
-    departureTime: "11:00",
-    arrivalTime: "15:15",
-    passengers: 2,
-    seat: "14C, 14D",
-    travelClass: "Premium Economy",
-    amount: 1200.0,
-    currency: "USD",
-    status: "Pending",
-    paymentStatus: "Pending",
-    bookedAt: "2025-12-22",
-  },
-];
-
 const mockUsers = [
   {
     id: 1,
@@ -134,99 +91,6 @@ const mockUsers = [
   },
 ];
 
-const mockRoles = [
-  {
-    id: 1,
-    title: "Super Admin",
-    desc: "Full Access",
-    count: 3,
-    color: "bg-purple-100 text-purple-800",
-  },
-  {
-    id: 2,
-    title: "Admin",
-    desc: "High-level Access",
-    count: 8,
-    color: "bg-blue-100 text-blue-800",
-  },
-  {
-    id: 3,
-    title: "Agent",
-    desc: "Operational Access",
-    count: 15,
-    color: "bg-green-100 text-green-800",
-  },
-];
-
-const mockStaff = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    email: "sarah.johnson@airline.com",
-    role: "Admin",
-    roleId: 2,
-    registration: "Jan 15, 2024",
-    lastActive: "2 hours ago",
-    status: "Active",
-    phone: "+1 (555) 123-4567",
-    avatar: "https://i.pravatar.cc/150?img=68",
-    activity: {
-      totalLogins: 342,
-      actionsThisMonth: 1287,
-      accountAge: 156,
-    },
-  },
-
-  {
-    id: 2,
-    name: "Michael Chen",
-    email: "michael.chen@airline.com",
-    role: "Agent",
-    roleId: 3,
-    registration: "Feb 3, 2024",
-    lastActive: "5 minutes ago",
-    status: "Active",
-    phone: "+66 81 234 5678",
-    avatar: "https://i.pravatar.cc/150?img=12",
-  },
-  {
-    id: 3,
-    name: "Emily Rodriguez",
-    email: "emily.r@airline.com",
-    role: "Admin",
-    roleId: 2,
-    registration: "Mar 12, 2024",
-    lastActive: "1 day ago",
-    status: "Active",
-    phone: "+66 89 876 5432",
-    avatar: "https://i.pravatar.cc/150?img=44",
-  },
-  {
-    id: 4,
-    name: "James Patel",
-    email: "james.p@airline.com",
-    role: "Agent",
-    roleId: 5,
-    registration: "Jun 20, 2025",
-    lastActive: "3 days ago",
-    status: "Active",
-    phone: "+66 95 123 4567",
-    avatar: "https://i.pravatar.cc/150?img=33",
-  },
-  {
-    id: 5,
-    name: "Anna Kowalski",
-    email: "anna.k@airline.com",
-    role: "Agent",
-    roleId: 6,
-    registration: "Sep 08, 2025",
-    lastActive: "Never",
-    status: "Inactive",
-    phone: "+66 93 987 6543",
-    avatar: "https://i.pravatar.cc/150?img=22",
-  },
-];
-
 import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -261,29 +125,6 @@ export const loginUser = async (email, password) => {
     token: response.data.access_token || response.data.token,
     user: response.data.admin || response.data.user,
   };
-};
-
-
-export const createBooking = async (bookingData) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newBooking = {
-        id: `BK-${100000 + mockBookings.length + 1}`,
-        bookingId: `BK-${100000 + mockBookings.length + 1}`,
-        bookedAt: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        }),
-        status: bookingData.status || "Pending",
-        paymentStatus: bookingData.paymentStatus || "Pending",
-        ...bookingData,
-      };
-
-      mockBookings.push(newBooking);
-      resolve(newBooking);
-    }, 400); // fake network delay
-  });
 };
 
 export const getAllBookings = async (params = {}) => {
@@ -381,9 +222,8 @@ export const getSecureTicket = async (bookingId) => {
   return response.data;
 };
 
-// ────────────────────────────────────────────────
+
 // User CRUD (promise-based, fake delay)
-// ────────────────────────────────────────────────
 
 export const getAllUsers = () => {
   return new Promise((resolve) => {
@@ -429,9 +269,8 @@ export const deleteUserById = (userId) => {
   });
 };
 
-// =====================
+
 // Staff CRUD Operations
-// =====================
 
 export const createStaffUser = async (name, email, password) => {
   const response = await apiClient.post(`${API_AUTH_PREFIX}/signup`, {
@@ -478,15 +317,13 @@ export const activateStaff = async (staffId) => {
   return response.data?.data ?? response.data;
 };
 
-// =====================
-// Flight CRUD Operations
-// =====================
 
-// Create a new flight override
-export const createFlightOverride = async (flightData) => {
+// Flight CRUD Operations
+
+// Create a new flight price override
+export const createFlightOverride = async (flightData, durationHours = 1) => {
   const snapshot = flightData.flight_snapshot || {};
-  const isRoundTrip = flightData.type === "ROUND_TRIP";
-  
+  const isRoundTrip = flightData.type === "ROUND_TRIP";  
   // Extract from the correct location based on flight type
   const leg = isRoundTrip ? snapshot.outbound : snapshot;
   
@@ -497,51 +334,26 @@ export const createFlightOverride = async (flightData) => {
     flight_number: leg?.flight_number,
     departure_date: departureDate,
     override_price_usd: flightData.base_price_usd,
+    duration_hours: durationHours,
   };
    
-  const response = await apiClient.post("/admin/overrides", payload);
-  const result = response.data?.data ?? response.data;
-
-   console.log("Backend Response:", result); // Check what's returned
-};
-
-export const updateFlightOverride = async (overrideId, overrideData) => {
-  // For UPDATE, the override object already has the required fields
-  const payload = {
-    airline_code: overrideData.airline_code,
-    flight_number: overrideData.flight_number,
-    departure_date: overrideData.departure_date,
-    override_price_usd: parseFloat(overrideData.override_price_usd),
-  };
-
-  console.log("Update Payload:", payload); // Debug
-
-  const response = await apiClient.put(`/admin/overrides/${overrideId}`, payload);
+  const response = await apiClient.post("/admin/price-overrides", payload);
   return response.data?.data ?? response.data;
 };
 
-
-// Get a specific flight override
-export const getFlightOverrideById = async (overrideId) => {
-  const response = await apiClient.get(`/admin/overrides/${overrideId}`);
-  return response.data?.data ?? response.data;
-};
-
-// List all flight overrides
+// List all flight price overrides
 export const getAllFlightOverrides = async () => {
-  const response = await apiClient.get("/admin/overrides");
+  const response = await apiClient.get("/admin/price-overrides");
   return response.data?.data ?? response.data;
 };
 
-export const deleteFlightOverride = async (overrideId) => {
-  const response = await apiClient.delete(`/admin/overrides/${overrideId}`);
+// Disable (deactivate) a flight price override
+export const disableFlightOverride = async (overrideId) => {
+  const response = await apiClient.delete(`/admin/price-overrides/${overrideId}`);
   return response.data?.data ?? response.data;
 };
 
-// =====================
 // Flight Search Operations
-// =====================
-
 export const searchFlights = async (origin, destination, departureDate) => {
   try {
     const response = await apiClient.get("/flights/search", {
@@ -597,25 +409,20 @@ export const updateExchangeRate = async (usdToMmkRate) => {
   return response.data?.data ?? response.data;
 };
 
-// =====================
-// Helper Functions
-// =====================
-
-export const calculateDuration = (departureTime, arrivalTime) => {
-  const departure = new Date(departureTime);
-  const arrival = new Date(arrivalTime);
-  const diffMs = arrival - departure;
-  const hours = Math.floor(diffMs / (1000 * 60 * 60));
-  const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  return `${hours}h ${minutes}m`;
+export const getPricingConfig = async () => {
+  const response = await apiClient.get("/admin/pricing-config");
+  return response.data?.data ?? response.data;
 };
 
-export const calculateAvailableSeats = (totalCapacity, bookedSeats) => {
-  return Math.max(0, totalCapacity - bookedSeats);
+export const updatePricingConfig = async (percentage) => {
+  const response = await apiClient.put("/admin/pricing-config", {
+    global_markup_percentage: percentage
+  });
+  return response.data?.data ?? response.data;
 };
 
-// =====================
+
 // Export Mock Data
 // =====================
 
-export {  mockBookings, mockUsers };
+export { mockUsers };

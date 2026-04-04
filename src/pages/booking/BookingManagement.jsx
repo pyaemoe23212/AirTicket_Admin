@@ -328,8 +328,8 @@ export default function BookingManagement() {
                     <input type="checkbox" />
                   </td>
                   <td className="p-4 font-medium">{booking.booking_code}</td>
-                  <td className="p-4">{booking.user.email}</td>
                   <td className="p-4 text-gray-600">{booking.user.name}</td>
+                  <td className="p-4">{booking.user.email}</td>
                   <td className="p-4">{extractRoute(booking)}</td>
                   <td className="p-4">{extractTravelDate(booking)}</td>
                   <td className="p-4 font-medium">

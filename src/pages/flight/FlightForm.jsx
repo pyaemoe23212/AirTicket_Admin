@@ -1,6 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { createFlightOverride, updateFlightOverride } from "../../config/api";
+import { createFlightOverride } from "../../config/api";
+
+// Convert minutes to hours (supports decimal values)
+const convertMinutesToHours = (minutes) => {
+  const numMinutes = parseFloat(minutes);
+  if (isNaN(numMinutes) || numMinutes <= 0) return 1; // Default to 1 hour
+  return numMinutes / 60;
+};
 
 export default function FlightForm() {
   const navigate = useNavigate();
@@ -19,6 +26,7 @@ export default function FlightForm() {
     ...flightData,
     // Allow override of price
     overridePrice: overrideData?.base_price_usd || flightData?.flight_snapshot?.base_price_usd || "",
+    durationHours: 1, // Default to 1 hour
     currency: "USD",
   });
   
@@ -31,6 +39,18 @@ export default function FlightForm() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Handle text input that only accepts numbers and decimals
+  const handleNumericInput = (e) => {
+    const { name, value } = e.target;
+    // Allow only numbers and one decimal point
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -46,10 +66,12 @@ export default function FlightForm() {
       };
 
       if (mode === "update") {
-        await updateFlightOverride(overrideId, submitData);
-        alert("Flight override updated successfully");
+        alert("Flight overrides can no longer be updated. Please delete and create a new one.");
+        navigate("/admin/flights");
       } else {
-        await createFlightOverride(submitData);
+        // Convert input minutes to hours for API
+        const durationHours = convertMinutesToHours(formData.durationHours);
+        await createFlightOverride(submitData, durationHours);
         alert("Flight override created successfully");
       }
       navigate("/admin/flights");
@@ -301,8 +323,7 @@ export default function FlightForm() {
                 {/* Price Override - Editable */}
                 <div className="border rounded-md p-5">
           <h3 className="text-sm font-semibold mb-4">Price Management</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Original Base Price - Read Only */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -313,10 +334,11 @@ export default function FlightForm() {
                   $
                 </span>
                 <input
-                  type="number"
+                  type="text"
                   value={snapshot?.base_price_usd || "0"}
                   disabled
                   className="w-full px-4 py-2 pl-7 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
+                  readOnly
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">From search result</p>
@@ -332,17 +354,17 @@ export default function FlightForm() {
                   $
                 </span>
                 <input
-                  type="number"
-                  step="0.01"
+                  type="text"
+                  inputMode="decimal"
                   name="overridePrice"
                   value={formData.overridePrice}
-                  onChange={handleInputChange}
+                  onChange={handleNumericInput}
                   required
                   className="w-full px-4 py-2 pl-7 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter new price"
                 />
               </div>
-              <p className="text-xs text-blue-600 mt-1">New base price</p>
+              <p className="text-xs text-blue-600 mt-1">Numbers only</p>
             </div>
 
             {/* Final Price - Read Only (Backend Calculated) */}
@@ -355,29 +377,57 @@ export default function FlightForm() {
                   $
                 </span>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.finalPrice || formData.overridePrice || "0"}
                   disabled
                   className="w-full px-4 py-2 pl-7 border border-gray-300 rounded-md bg-green-50 text-green-700 font-semibold"
+                  readOnly
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">Backend calculated</p>
             </div>
+
+            {/* Duration Hours - Editable (only for create mode) */}
+            {mode === "create" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Override Duration (Minutes) <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  name="durationHours"
+                  value={formData.durationHours}
+                  onChange={handleNumericInput}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., 30, 60, 90.5"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.durationHours 
+                    ? `${convertMinutesToHours(formData.durationHours).toFixed(2)} hours` 
+                    : "Enter minutes"}
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Price Comparison Info */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
+          {/* Price & Duration Info */}
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700 space-y-2">
             {snapshot?.base_price_usd && formData.overridePrice ? (
               <>
                 {parseFloat(formData.overridePrice) > snapshot.base_price_usd ? (
-                  <p>📈 Price will increase by ${(formData.overridePrice - snapshot.base_price_usd).toFixed(2)}</p>
-                ) : formData.overridePrice < snapshot.base_price_usd ? (
-                  <p>📉 Price will decrease by ${(snapshot.base_price_usd - formData.overridePrice).toFixed(2)}</p>
+                  <p>📈 Price will increase by ${(parseFloat(formData.overridePrice) - snapshot.base_price_usd).toFixed(2)}</p>
+                ) : parseFloat(formData.overridePrice) < snapshot.base_price_usd ? (
+                  <p>📉 Price will decrease by ${(snapshot.base_price_usd - parseFloat(formData.overridePrice)).toFixed(2)}</p>
                 ) : (
                   <p>➡️ Price unchanged</p>
                 )}
               </>
             ) : null}
+            {mode === "create" && formData.durationHours && (
+              <p>⏱️ Override will be active for <span className="font-semibold">{formData.durationHours} minutes ({convertMinutesToHours(formData.durationHours).toFixed(2)} hours)</span>. After this period, the price will revert to the normal search price.</p>
+            )}
           </div>
         </div>
 

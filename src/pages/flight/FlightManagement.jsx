@@ -4,26 +4,28 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
   searchFlights,
   searchRoundTripFlights,
-  getAllFlightOverrides,
   getExchangeRate,
-  updateExchangeRate
+  updateExchangeRate,
+  getPricingConfig,    
+  updatePricingConfig 
 } from "../../config/api";
 
 export default function FlightManagement() {
   const navigate = useNavigate();
   const { hasRole } = useAuth(); 
   const isAdmin = hasRole("ADMIN") || hasRole("SUPER_ADMIN");  // Check if admin
-  // =========================
+
   // Modal State
-  // =========================
   const [openCurrencyModal, setOpenCurrencyModal] = useState(false);
   const [usdToMmkRate, setUsdToMmkRate] = useState("");
   const [currentRate, setCurrentRate] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [openPricingModal, setOpenPricingModal] = useState(false);
+  const [globalMarkup, setGlobalMarkup] = useState("");
+  const [currentMarkup, setCurrentMarkup] = useState(null);
+  const [pricingUpdatedAt, setPricingUpdatedAt] = useState(null);
 
-  // =========================
   // Search State
-  // =========================
   const [tripType, setTripType] = useState("oneWay");
   const [searchParams, setSearchParams] = useState({
     origin: "",
@@ -49,11 +51,21 @@ export default function FlightManagement() {
       }
     };
     fetchRate();
+
+    const fetchPricingConfig = async () => {
+      try {
+        const pricingData = await getPricingConfig();
+        setCurrentMarkup(pricingData?.global_markup_percentage || 0);
+        setPricingUpdatedAt(pricingData?.updated_at);
+        setGlobalMarkup(String(pricingData?.global_markup_percentage || ""));
+      } catch (err) {
+        console.error("Failed to fetch pricing config:", err);
+      }
+    };
+    fetchPricingConfig();
   }, []);
 
-  // =========================
   // Helpers
-  // =========================
   const transformFlightData = (flights) => {
     console.log("Raw API Response:", flights);
 
@@ -155,9 +167,7 @@ export default function FlightManagement() {
     return new Date(dateString).toLocaleString();
   };
 
-  // =========================
   // Handlers
-  // =========================
   const handleSearch = async () => {
     if (
       !searchParams.origin ||
@@ -260,9 +270,33 @@ export default function FlightManagement() {
     }
   };
 
-  // =========================
+  const handleUpdatePricingConfig = async () => {
+    try {
+      await updatePricingConfig(globalMarkup);
+      
+      // Recalculate prices with new markup
+      const updatedResults = searchResults.map(flight => {
+        const markupMultiplier = 1 + (parseFloat(globalMarkup) / 100);
+        return {
+          ...flight,
+          final_price_usd: flight.flight_snapshot.base_price_usd * markupMultiplier,
+          flight_snapshot: {
+            ...flight.flight_snapshot,
+            final_price_usd: flight.flight_snapshot.base_price_usd * markupMultiplier,
+          },
+        };
+      });
+
+      setSearchResults(updatedResults);
+      setCurrentMarkup(parseFloat(globalMarkup));
+      setOpenPricingModal(false);
+      // Optional: Show success message
+    } catch (err) {
+      console.error("Failed to update pricing config:", err);
+    }
+  }; 
+
   // Render
-  // =========================
   return (
     <div className="space-y-6">
       {/* =========================
@@ -288,6 +322,12 @@ export default function FlightManagement() {
                 className="border px-4 py-2 text-sm rounded hover:bg-gray-50"
               >
                 Currency Exchange
+              </button>
+              <button
+                onClick={() => setOpenPricingModal(true)}
+                className="border px-4 py-2 text-sm rounded hover:bg-gray-50"
+              >
+                Pricing Configuration
               </button>
             </>
           )}
@@ -634,6 +674,89 @@ export default function FlightManagement() {
           </div>
         </div>
       )}
+
+      {/* =========================
+          Pricing Configuration Modal
+      ========================= */}
+      {openPricingModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          onClick={() => setOpenPricingModal(false)}
+        >
+          <div
+            className="bg-white w-full max-w-2xl rounded-lg p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold">Pricing Configuration</h2>
+              <button onClick={() => setOpenPricingModal(false)} className="text-2xl">×</button>
+            </div>
+
+            {/* Config Table */}
+            <div className="mb-6 overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-gray-100 border">
+                    <th className="border p-3 text-left font-semibold">Configuration</th>
+                    <th className="border p-3 text-left font-semibold">Current Value</th>
+                    <th className="border p-3 text-left font-semibold">New Value</th>
+                    <th className="border p-3 text-left font-semibold">Last Updated</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border hover:bg-gray-50">
+                    <td className="border p-3 font-medium">Global Markup Percentage</td>
+                    <td className="border p-3 font-medium">{currentMarkup || 0}%</td>
+                    <td className="border p-3">
+                      <input
+                        type="text"
+                        value={globalMarkup}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (/^\d*\.?\d*$/.test(value)) {
+                            setGlobalMarkup(value);
+                          }
+                        }}
+                        className="border rounded px-3 py-2 w-full"
+                        placeholder="Enter markup percentage"
+                      />
+                    </td>
+                    <td className="border p-3 text-sm text-gray-600">
+                      {formatDate(pricingUpdatedAt)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* Info Box */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
+              <p className="text-sm text-blue-800">
+                <strong>Note:</strong> The global markup percentage will be applied to all ticket prices retrieved from flight searches. 
+                For example, a 10% markup will increase all prices by 10%.
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setOpenPricingModal(false)}
+                className="px-4 py-2 border rounded hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button 
+                onClick={handleUpdatePricingConfig}
+                className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+              >
+                Update Configuration
+              </button>
+            </div>
+          </div>
+        </div>
+      )}    
     </div>
   );
 }
