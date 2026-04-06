@@ -421,7 +421,7 @@ export default function BookingManagement() {
                       </button>
                       <button
                         onClick={() =>
-                          navigate(`/admin/bookings/${booking.booking_id}/edit`)
+                          navigate(`/admin/bookings/${booking.booking_id}/booking-edit`)
                         }
                         className="border px-3 py-1 text-xs rounded hover:bg-gray-100"
                       >

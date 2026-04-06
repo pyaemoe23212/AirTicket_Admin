@@ -730,13 +730,6 @@ export default function FlightManagement() {
               </table>
             </div>
 
-            {/* Info Box */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
-              <p className="text-sm text-blue-800">
-                <strong>Note:</strong> The global markup percentage will be applied to all ticket prices retrieved from flight searches. 
-                For example, a 10% markup will increase all prices by 10%.
-              </p>
-            </div>
 
             {/* Modal Footer */}
             <div className="flex justify-end gap-3">

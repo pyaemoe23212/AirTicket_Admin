@@ -1,7 +1,7 @@
 // pages/user/UserManagement.jsx
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllUsers, deleteUserById } from "../../config/api";
+import { getAllCustomers, deactivateCustomer, activateCustomer } from "../../config/api";
 
 export default function UserManagement() {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ export default function UserManagement() {
 
     const fetchUsers = async () => {
       try {
-        const data = await getAllUsers();
+        const data = await getAllCustomers();
         if (mounted) {
           setUsers(data);
           setLoading(false);
@@ -31,18 +31,22 @@ export default function UserManagement() {
     return () => (mounted = false);
   }, []);
 
-  const handleDelete = async (userId) => {
-    if (!window.confirm("Delete this user? This action cannot be undone."))
-      return;
-
+  const handleToggleStatus = async (userId, isActive) => {
     try {
-      await deleteUserById(userId);
-      setUsers((prev) => prev.filter((u) => u.id !== userId));
-      alert("User deleted successfully");
+      if (isActive) {
+        await deactivateCustomer(userId);
+      } else {
+        await activateCustomer(userId);
+      }
+      // Refresh the list
+      const data = await getAllCustomers();
+      setUsers(data);
     } catch (err) {
-      alert("Failed to delete user: " + err.message);
+      alert("Failed to update status: " + err.message);
     }
   };
+
+
 
   if (loading) return <div className="p-6 text-center">Loading users...</div>;
   if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
@@ -129,46 +133,64 @@ export default function UserManagement() {
           </thead>
 
           <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="border-b hover:bg-gray-50">
-                <td className="p-3 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-300" />
-                  {user.name}
-                </td>
+            {users.map((user) => {
+              const isActive = user.is_active === true;
+              const registrationDate = new Date(user.created_at).toLocaleDateString(
+                "en-US",
+                { year: "numeric", month: "short", day: "numeric" }
+              );
 
-                <td className="p-3 text-gray-600">{user.email}</td>
-                <td className="p-3 text-gray-600">{user.registration}</td>
-                <td className="p-3 text-gray-600">{user.lastActive}</td>
+              return (
+                <tr key={user.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3 flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-300" />
+                    {user.full_name}
+                  </td>
 
-                <td className="p-3">
-                  <span className="border rounded px-2 py-0.5 text-xs">
-                    {user.status}
-                  </span>
-                </td>
+                  <td className="p-3 text-gray-600">{user.email}</td>
+                  <td className="p-3 text-gray-600">{registrationDate}</td>
+                  <td className="p-3 text-gray-600">—</td>
 
-                <td className="p-3 flex gap-2">
-                  <button
-                    onClick={() => navigate(`/admin/users/${user.id}`)}
-                    className="border px-2 py-1 rounded text-xs hover:bg-gray-100"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => navigate(`/admin/users/${user.id}/edit`)}
-                    className="border px-2 py-1 rounded text-xs hover:bg-gray-100"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="border px-2 py-1 rounded text-xs text-red-500 hover:bg-red-50"
-                    title="Delete"
-                  >
-                    🗑
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  <td className="p-3">
+                    <span
+                      className={`border rounded px-2 py-0.5 text-xs font-medium ${
+                        isActive
+                          ? "bg-green-100 text-green-800 border-green-200"
+                          : "bg-red-100 text-red-800 border-red-200"
+                      }`}
+                    >
+                      {isActive ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+
+                  <td className="p-3 flex gap-2">
+                    <button
+                      onClick={() => navigate(`/admin/users/${user.id}`)}
+                      className="border px-2 py-1 rounded text-xs hover:bg-gray-100"
+                    >
+                      View
+                    </button>
+                    <button
+                      onClick={() => navigate(`/admin/users/${user.id}/edit`)}
+                      className="border px-2 py-1 rounded text-xs hover:bg-gray-100"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleToggleStatus(user.id, isActive)}
+                      className={`border px-2 py-1 rounded text-xs ${
+                        isActive
+                          ? "text-red-500 hover:bg-red-50"
+                          : "text-green-600 hover:bg-green-50"
+                      }`}
+                      title={isActive ? "Deactivate" : "Activate"}
+                    >
+                      {isActive ? "Deactivate" : "Activate"}
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 

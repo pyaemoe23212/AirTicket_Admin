@@ -17,6 +17,7 @@ import StaffForm from "../pages/staff/StaffForm";
 import StaffView from "../pages/staff/StaffView";
 import StaffEdit from "../pages/staff/StaffEdit";
 import FlightOverride from "../pages/flight/FlightOverride";
+import BookingEdit from "../pages/booking/BookingEdit";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: "bookings/:bookingId",
         element: <BookingView />,
+      },
+      {
+        path: "bookings/:bookingId/booking-edit",
+        element: <BookingEdit />,
       },
       {
         path: "flights",

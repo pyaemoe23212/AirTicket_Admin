@@ -224,51 +224,30 @@ export const getSecureTicket = async (bookingId) => {
 
 
 // User CRUD (promise-based, fake delay)
-
-export const getAllUsers = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve([...mockUsers]), 400);
-  });
+export const getAllCustomers = async (params = {}) => {
+  const response = await apiClient.get("/admin/customers", { params });
+  return response.data?.data ?? response.data;
 };
 
-export const getUserById = (userId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = mockUsers.find((u) => u.id === Number(userId));
-      if (user) resolve(user);
-      else reject(new Error("User not found"));
-    }, 300);
-  });
+export const getCustomerById = async (customerId) => {
+  const response = await apiClient.get(`/admin/customers/${customerId}`);
+  return response.data?.data ?? response.data;
 };
 
-export const updateUser = (userId, updates) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockUsers.findIndex((u) => u.id === Number(userId));
-      if (index !== -1) {
-        mockUsers[index] = { ...mockUsers[index], ...updates };
-        resolve(mockUsers[index]);
-      } else {
-        reject(new Error("User not found"));
-      }
-    }, 400);
-  });
+export const updateCustomer = async (customerId, updates) => {
+  const response = await apiClient.patch(`/admin/customers/${customerId}`, updates);
+  return response.data?.data ?? response.data;
 };
 
-export const deleteUserById = (userId) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockUsers.findIndex((u) => u.id === Number(userId));
-      if (index !== -1) {
-        mockUsers.splice(index, 1);
-        resolve({ success: true, message: "User deleted" });
-      } else {
-        reject(new Error("User not found"));
-      }
-    }, 400);
-  });
+export const deactivateCustomer = async (customerId) => {
+  const response = await apiClient.patch(`/admin/customers/${customerId}/deactivate`);
+  return response.data?.data ?? response.data;
 };
 
+export const activateCustomer = async (customerId) => {
+  const response = await apiClient.patch(`/admin/customers/${customerId}/activate`);
+  return response.data?.data ?? response.data;
+};
 
 // Staff CRUD Operations
 

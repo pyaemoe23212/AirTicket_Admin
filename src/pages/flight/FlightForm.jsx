@@ -417,16 +417,16 @@ export default function FlightForm() {
             {snapshot?.base_price_usd && formData.overridePrice ? (
               <>
                 {parseFloat(formData.overridePrice) > snapshot.base_price_usd ? (
-                  <p>📈 Price will increase by ${(parseFloat(formData.overridePrice) - snapshot.base_price_usd).toFixed(2)}</p>
+                  <p>Price will increase by ${(parseFloat(formData.overridePrice) - snapshot.base_price_usd).toFixed(2)}</p>
                 ) : parseFloat(formData.overridePrice) < snapshot.base_price_usd ? (
-                  <p>📉 Price will decrease by ${(snapshot.base_price_usd - parseFloat(formData.overridePrice)).toFixed(2)}</p>
+                  <p>Price will decrease by ${(snapshot.base_price_usd - parseFloat(formData.overridePrice)).toFixed(2)}</p>
                 ) : (
-                  <p>➡️ Price unchanged</p>
+                  <p>Price unchanged</p>
                 )}
               </>
             ) : null}
             {mode === "create" && formData.durationHours && (
-              <p>⏱️ Override will be active for <span className="font-semibold">{formData.durationHours} minutes ({convertMinutesToHours(formData.durationHours).toFixed(2)} hours)</span>. After this period, the price will revert to the normal search price.</p>
+              <p>Override will be active for <span className="font-semibold">{formData.durationHours} minutes ({convertMinutesToHours(formData.durationHours).toFixed(2)} hours)</span>. After this period, the price will revert to the normal search price.</p>
             )}
           </div>
         </div>

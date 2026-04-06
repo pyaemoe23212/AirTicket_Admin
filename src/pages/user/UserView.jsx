@@ -1,7 +1,7 @@
 // pages/user/UserView.jsx
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserById } from "../../config/api";
+import { getCustomerById } from "../../config/api";
 
 export default function UserView() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export default function UserView() {
 
     const fetchUser = async () => {
       try {
-        const data = await getUserById(id);
+        const data = await getCustomerById(id);
         if (mounted) {
           setUser(data);
           setLoading(false);
@@ -62,23 +62,23 @@ export default function UserView() {
       {/* Profile */}
       <div className="flex items-center gap-4 mb-6">
         <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-gray-500 text-2xl font-medium">
-          {user.name.charAt(0)}
+          {user.full_name.charAt(0)}
         </div>
         <div>
-          <p className="font-medium text-lg">{user.name}</p>
+          <p className="font-medium text-lg">{user.full_name}</p>
           <p className="text-gray-600">{user.email}</p>
           <div className="flex gap-2 mt-2">
             <span
               className={`px-3 py-1 rounded-full text-xs font-medium ${
-                user.status === "Active"
+                user.is_active
                   ? "bg-green-100 text-green-800"
                   : "bg-red-100 text-red-800"
               }`}
             >
-              {user.status}
+              {user.is_active ? "Active" : "Inactive"}
             </span>
             <span className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-600">
-              {user.type || "Standard User"}
+              {user.is_email_verified ? "Email Verified" : "Unverified"}
             </span>
           </div>
         </div>
@@ -90,9 +90,11 @@ export default function UserView() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <p className="text-xs text-gray-600">Customer ID</p>
-            <p className="font-medium">
-              USR-{String(user.id).padStart(3, "0")}
-            </p>
+            <p className="font-medium">{user.id}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-600">Full Name</p>
+            <p className="font-medium">{user.full_name}</p>
           </div>
           <div>
             <p className="text-xs text-gray-600">Email Address</p>
@@ -103,77 +105,24 @@ export default function UserView() {
             <p className="font-medium">{user.phone || "N/A"}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-600">Preferred Class</p>
-            <p className="font-medium">{user.preferredClass || "Economy"}</p>
+            <p className="text-xs text-gray-600">Email Verified</p>
+            <p className="font-medium">
+              {user.is_email_verified ? "Yes" : "No"}
+            </p>
           </div>
           <div>
             <p className="text-xs text-gray-600">Registration Date</p>
-            <p className="font-medium">{user.registration}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-600">Last Active</p>
-            <p className="font-medium">{user.lastActive}</p>
+            <p className="font-medium">
+              {new Date(user.created_at).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Booking Statistics */}
-      {user.bookingStats && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4">Booking Statistics</h3>
-          <div className="grid grid-cols-4 text-center border rounded-lg overflow-hidden">
-            <div className="p-4 border-r">
-              <p className="text-xs text-gray-500">Total Bookings</p>
-              <p className="text-xl font-semibold">{user.bookingStats.total}</p>
-            </div>
-            <div className="p-4 border-r">
-              <p className="text-xs text-gray-500">Total Spent</p>
-              <p className="text-xl font-semibold">
-                ${user.bookingStats.totalSpent}
-              </p>
-            </div>
-            <div className="p-4 border-r">
-              <p className="text-xs text-gray-500">Cancelled</p>
-              <p className="text-xl font-semibold">
-                {user.bookingStats.cancelled}
-              </p>
-            </div>
-            <div className="p-4">
-              <p className="text-xs text-gray-500">Avg Booking</p>
-              <p className="text-xl font-semibold">
-                ${user.bookingStats.avgBooking}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Recent Bookings */}
-      {user.recentBookings && user.recentBookings.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Recent Bookings</h3>
-          <table className="w-full text-sm border">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-2 text-left">Booking ID</th>
-                <th className="p-2 text-left">Date</th>
-                <th className="p-2 text-left">Route</th>
-                <th className="p-2 text-left">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              {user.recentBookings.map((bk) => (
-                <tr key={bk.id} className="border-t">
-                  <td className="p-2">{bk.id}</td>
-                  <td className="p-2">{bk.date}</td>
-                  <td className="p-2">{bk.route}</td>
-                  <td className="p-2">${bk.amount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
 
       {/* Footer */}
       <div className="flex justify-end mt-8">

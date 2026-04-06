@@ -330,8 +330,8 @@ export default function FlightEdit() {
           </div>
 
           {/* Price Comparison Info */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
-            <p>💡 Update the override price above and save changes</p>
+          <div className="mt-4 p-3 bg-blue-50 border border-black-200 rounded text-sm text-blue-700">
+            <p>Update the override price above and save changes</p>
           </div>
         </div>
 
