@@ -398,14 +398,14 @@ export default function BookingManagement() {
                           rel="noreferrer"
                           className="text-xs text-blue-600 hover:underline"
                         >
-                          📄 {booking.original_ticket_name || "View Ticket"}
+                           {booking.original_ticket_name || "View Ticket"}
                         </a>
                         <button
                           disabled={isUpdating}
                           onClick={() => handleDownloadTicket(booking)}
                           className="px-2 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-60"
                         >
-                          ⬇️ Download
+                          Download
                         </button>
                       </div>
                     )}

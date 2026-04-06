@@ -4,22 +4,12 @@ import { useLocation, useNavigate } from "react-router";
 const HEADER_CONFIG = {
   "/admin/bookings": {
     title: "Booking Management",
-    actionLabel: "+ New Booking",
-    actionPath: "/admin/bookings/bookingform",
   },
   "/admin/flights": {
     title: "Flight Management",
-    actionLabel: "+ New Flight",
-    actionPath: "/admin/flights/flightform",
   },
   "/admin/users": {
     title: "User Management",
-  },
-  "/admin/bookings/bookingform": {
-    title: "New Booking",
-  },
-  "/admin/flights/flightform": {
-    title: "New Flight",
   },
   "/admin/staff/staff-form": {
     title: "Add Staff Member",

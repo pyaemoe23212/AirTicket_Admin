@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getBookingById, deleteBooking, getSecureTicket } from "../../config/api";
+import { getBookingById, deleteBooking, getSecureTicket, getBookingAudit } from "../../config/api";
 
 export default function BookingView() {
   const { bookingId } = useParams();
@@ -9,6 +9,9 @@ export default function BookingView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [downloading, setDownloading] = useState(false);
+  const [auditData, setAuditData] = useState(null);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [showAuditModal, setShowAuditModal] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -34,6 +37,19 @@ export default function BookingView() {
       mounted = false;
     };
   }, [bookingId]);
+
+  const handleViewAudit = async () => {
+    try {
+      setAuditLoading(true);
+      const data = await getBookingAudit(bookingId);
+      setAuditData(data);
+      setShowAuditModal(true);
+    } catch (err) {
+      alert("Failed to load audit history: " + err.message);
+    } finally {
+      setAuditLoading(false);
+    }
+  };
 
   const handleDeleteBooking = async () => {
     if (window.confirm("Are you sure you want to delete this booking?")) {
@@ -217,7 +233,16 @@ export default function BookingView() {
 
         {/* Payment & Status */}
         <section>
-          <h2 className="text-lg font-semibold mb-4">Payment & Status</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Payment & Status</h2>
+            <button
+              onClick={handleViewAudit}
+              disabled={auditLoading}
+              className="text-sm px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60"
+            >
+              {auditLoading ? "Loading..." : "View Audit"}
+            </button>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <DetailItem label="Payment Status" value={booking.payment_status} />
             <DetailItem label="Booking Status" value={booking.status} />
@@ -231,15 +256,15 @@ export default function BookingView() {
         {/* Uploaded Ticket File */}
             <section>
               <h2 className="text-lg font-semibold mb-4">Ticket File</h2>
-              <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+              <div className="border rounded-lg p-4 bg-gray-50 border-gray-200">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-blue-800">Download to see the uploaded file.</p>
+                  <p className="text-sm">Download to see the uploaded file.</p>
                   <button
                     disabled={downloading}
                     onClick={handleDownloadTicket}
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm disabled:opacity-60"
                   >
-                    {downloading ? "Downloading..." : "⬇️ Download"}
+                    {downloading ? "Downloading..." : "Download"}
                   </button>
                 </div>
               </div>
@@ -261,6 +286,148 @@ export default function BookingView() {
           Delete Booking
         </button>
       </div>
+
+      {/* Audit Modal */}
+      {showAuditModal && (
+        <div 
+          className="fixed inset-0 flex items-center justify-center p-4 z-50"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.2)" }}
+          onClick={() => setShowAuditModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 p-6 border-b bg-gray-50 ">
+              <h2 className="text-2xl font-bold ">Booking Audit History</h2>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-5">
+              {auditData ? (
+                <>
+                  {/* Payment Section */}
+                  {auditData.payment && (
+                    <div className="border rounded-lg p-5 bg-gray-50 border-gray-200 hover:shadow-md transition-shadow">
+                      <h3 className="font-bold text-lg mb-4  flex items-center">
+                        Payment
+                      </h3>
+                      <div className="space-y-3 ml-6">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm font-semibold text-gray-700">Status:</span>
+                          <span className="px-3 py-1 bg-green-600 text-white rounded-full text-sm font-medium">
+                            {auditData.payment.status}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm font-semibold text-gray-700">Marked At:</span>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {new Date(auditData.payment.marked_at).toLocaleString()}
+                          </p>
+                        </div>
+                        {auditData.payment.marked_by && (
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Marked By:</span>
+                            <div className="mt-1 bg-white rounded p-2">
+                              <p className="text-sm font-medium text-gray-800">{auditData.payment.marked_by.name}</p>
+                              <p className="text-xs text-gray-500">{auditData.payment.marked_by.email}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Status Section */}
+                  {auditData.status && (
+                    <div className="border rounded-lg p-5 bg-gray-50 border-gray-200 hover:shadow-md transition-shadow">
+                      <h3 className="font-bold text-lg mb-4  flex items-center">
+                        Booking Status
+                      </h3>
+                      <div className="space-y-3 ml-6">
+                        <div className="flex justify-between items-start">
+                          <span className="text-sm font-semibold text-gray-700">Current Status:</span>
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium text-white ${
+                            auditData.status.current_status === "CONFIRMED"
+                              ? "bg-green-600"
+                              : auditData.status.current_status === "PENDING"
+                              ? "bg-yellow-600"
+                              : "bg-red-600"
+                          }`}>
+                            {auditData.status.current_status}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-sm font-semibold text-gray-700">Updated At:</span>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {new Date(auditData.status.updated_at).toLocaleString()}
+                          </p>
+                        </div>
+                        {auditData.status.updated_by && (
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Updated By:</span>
+                            <div className="mt-1 bg-white rounded p-2">
+                              <p className="text-sm font-medium text-gray-800">{auditData.status.updated_by.name}</p>
+                              <p className="text-xs text-gray-500">{auditData.status.updated_by.email}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Ticket Section */}
+                  {auditData.ticket && (
+                    <div className="border rounded-lg p-5 bg-gray-50 border-gray-200 hover:shadow-md transition-shadow">
+                      <h3 className="font-bold text-lg mb-4  flex items-center">
+                        Ticket
+                      </h3>
+                      <div className="space-y-3 ml-6">
+                        <div>
+                          <span className="text-sm font-semibold text-gray-700">Uploaded At:</span>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {new Date(auditData.ticket.uploaded_at).toLocaleString()}
+                          </p>
+                        </div>
+                        {auditData.ticket.uploaded_by && (
+                          <div>
+                            <span className="text-sm font-semibold text-gray-700">Uploaded By:</span>
+                            <div className="mt-1 bg-white rounded p-2">
+                              <p className="text-sm font-medium text-gray-800">{auditData.ticket.uploaded_by.name}</p>
+                              <p className="text-xs text-gray-500">{auditData.ticket.uploaded_by.email}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {!auditData.payment && !auditData.status && !auditData.ticket && (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500 text-lg">No audit history available</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-lg">Loading audit history...</p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 p-6 border-t bg-gray-50 flex justify-end">
+              <button
+                onClick={() => setShowAuditModal(false)}
+                className="px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

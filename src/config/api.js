@@ -222,6 +222,12 @@ export const getSecureTicket = async (bookingId) => {
   return response.data;
 };
 
+// Get booking audit history
+export const getBookingAudit = async (bookingId) => {
+  const response = await apiClient.get(`/admin/bookings/${bookingId}/audit`);
+  return response.data?.data ?? response.data;
+};
+
 
 // User CRUD (promise-based, fake delay)
 export const getAllCustomers = async (params = {}) => {

@@ -126,7 +126,7 @@ export default function UserManagement() {
               <th className="p-4 text-left">Name</th>
               <th className="p-4 text-left">Email</th>
               <th className="p-4 text-left">Registration Date</th>
-              <th className="p-4 text-left">Last Active</th>
+              <th className="p-4 text-left">Last Updated Date</th>
               <th className="p-4 text-left">Status</th>
               <th className="p-4 text-left">Actions</th>
             </tr>
@@ -139,17 +139,20 @@ export default function UserManagement() {
                 "en-US",
                 { year: "numeric", month: "short", day: "numeric" }
               );
+              const lastUpdateDate = new Date(user.updated_at).toLocaleDateString(
+                "en-US",
+                { year: "numeric", month: "short", day: "numeric" }
+              );
 
               return (
                 <tr key={user.id} className="border-b hover:bg-gray-50">
                   <td className="p-3 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-300" />
                     {user.full_name}
                   </td>
 
                   <td className="p-3 text-gray-600">{user.email}</td>
                   <td className="p-3 text-gray-600">{registrationDate}</td>
-                  <td className="p-3 text-gray-600">—</td>
+                  <td className="p-3 text-gray-600">{lastUpdateDate}</td>
 
                   <td className="p-3">
                     <span
@@ -194,23 +197,6 @@ export default function UserManagement() {
           </tbody>
         </table>
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center p-3 text-xs text-gray-500 border-t">
-          <span>
-            Showing 1–{users.length} of {users.length} results
-          </span>
-          <div className="flex gap-1">
-            <button className="border px-2 py-1 rounded">&lt;</button>
-            <button className="border px-2 py-1 rounded bg-gray-800 text-white">
-              1
-            </button>
-            <button className="border px-2 py-1 rounded">2</button>
-            <button className="border px-2 py-1 rounded">3</button>
-            <button className="border px-2 py-1 rounded">...</button>
-            <button className="border px-2 py-1 rounded">6</button>
-            <button className="border px-2 py-1 rounded">&gt;</button>
-          </div>
-        </div>
       </div>
     </div>
   );
